@@ -140,6 +140,30 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     ```
 6. For more information please read [this](https://filamentphp.com/docs/3.x/panels/installation).
 
+> **Authorizing access to the panel**
+> 1. To set up your `App\Models\User` to access Filament in non-local environments, you must implement the `FilamentUser` contract:
+>     ```php
+>     <?php
+>      
+>     namespace App\Models;
+>      
+>     use Filament\Models\Contracts\FilamentUser;
+>     use Filament\Panel;
+>     use Illuminate\Foundation\Auth\User as Authenticatable;
+>     // use MongoDB\Laravel\Auth\User as Authenticatable;  // if you used MongoDB
+>      
+>     class User extends Authenticatable implements FilamentUser
+>     {
+>         // ...
+>      
+>         public function canAccessPanel(Panel $panel): bool
+>         {
+>             return $this->hasAnyRole(['Super Admin', 'Admin']);
+>         }
+>     }
+>     ```
+> 
+
 ## Run App (EPS TOPIK Quiz)
 
 To test the application on local, follow the steps mentioned below to install and run the project.
