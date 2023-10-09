@@ -6,10 +6,67 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 
 ## Preparing Laravel Permission MongoDB - first time
 
-1. Install the package by running the following commands in your Laravel project directory
+> **NB**: Before install the package, let's setup MongoDB Configuration first!
+> 1. Add the `MongoDBServiceProvider` to `Autoloaded Service Providers` in `config/app.php` file:
+>     ```php
+>     'providers' => [
+>         // ...
+>         MongoDB\Laravel\MongoDBServiceProvider::class,
+>     ],
+>     ```
+> 2. Open `config/database.php` from config folder and change `Default Database Connection Name`
+>     ```php
+>     'default' => env('DB_CONNECTION', 'mongodb'),
+>     ```
+> 3. And add the following lines to `Database Connections` list
+>     ```php
+>     'connections' => [
+>         'mongodb' => [
+>             'driver' => 'mongodb',
+>             'dsn' => env('DB_DSN', 'mongodb://localhost:27017'),
+>             'database' => env('DB_DATABASE', 'homestead'),
+>         ],
+>         // ...
+>     ],
+>     ```
+>     **NB**: Instead of using a connection string, you can also use the host and port configuration options
+>     ```php
+>     'connections' => [
+>         'mongodb' => [
+>             'driver' => 'mongodb',
+>             'host' => env('DB_HOST', '127.0.0.1'),
+>             'port' => env('DB_PORT', 27017),
+>             'database' => env('DB_DATABASE', 'homestead'),
+>             'username' => env('DB_USERNAME', 'homestead'),
+>             'password' => env('DB_PASSWORD', 'secret'),
+>             'options' => [
+>                 'appname' => 'homestead',
+>             ],
+>         ],
+>         // ...
+>     ],
+>     ```
+
+1. Install the Laravel Permission MongoDB package by running the following commands in your Laravel project directory
     ```sh
     composer require mostafamaklad/laravel-permission-mongodb
     ```
+
+    > Or manual get from github, open and update your `composer.json` file with code below:
+    > ```json
+    > // ...
+    > "repositories": [
+    >     {
+    >         "type": "vcs",
+    >         "url": "https://github.com/zoltech/laravel-permission-mongodb.git"
+    >     }
+    > ],
+    > "require": {
+    >     // ...
+    >     "zoltech/laravel-permission-mongodb": "dev-master"
+    > },
+    > // ...
+    > ```
 2. You can publish the migration with:
     ```sh
     php artisan vendor:publish --provider="Maklad\Permission\PermissionServiceProvider" --tag="migrations"
@@ -24,7 +81,35 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     ```
 4. For more information please read [this](https://github.com/mostafamaklad/laravel-permission-mongodb#laravel).
 
-> **NB:** Always use classes from `Jenssegers\Mongodb\` to use as extends in model classes!
+> **NB:** Always use classes from `Mongodb\` to use as extends in model classes!
+
+> **Add default Role for new users:** 
+> 1. Create a new observer class
+>     ```sh
+>     php artisan make:observer UserObserver --model=User
+>     ```
+>     This command will place the new observer in your `app/Observers` directory.
+> 2. Set the role for each new user has been created. Open and update `UserObserver.php` file
+>     ```php
+>     public function created(User $user)
+>     {
+>         $user->assignRole('User');
+>     }
+>     ```
+> 3. To register an observer, you need to call the `observe` method on the model you wish to observe. You may register observers in the `boot` method of your application's `App\Providers\EventServiceProvider` service provider:
+>     ```php
+>     use App\Models\User;
+>     use App\Observers\UserObserver;
+>      
+>     /**
+>      * Register any events for your application.
+>      */
+>     public function boot(): void
+>     {
+>         User::observe(UserObserver::class);
+>     }
+>     ```
+> 4. For more information please read [this](https://laravel.com/docs/10.x/eloquent#observers)
 
 ## Preparing Filament - first time
 
