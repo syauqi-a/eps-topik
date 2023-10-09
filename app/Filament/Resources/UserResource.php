@@ -20,8 +20,9 @@ use App\Filament\Resources\UserResource\RelationManagers;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
     {
@@ -57,16 +58,15 @@ class UserResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable()
+                    ->searchable(),
+                TextColumn::make('email')
+                    ->searchable(),
+                TextColumn::make('email_verified_at')
+                    ->dateTime()
                     ->sortable(),
-                TextColumn::make('email'),
-                // TextColumn::make('email_verified_at')
-                //     ->dateTime(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('update_at')
-                    ->dateTime(),
             ])
             ->filters([
                 //
