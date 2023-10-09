@@ -119,16 +119,16 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     # or
     composer require filament/filament:*
     ```
-2. **Optional**: The service provider will automatically get registered. Or you may manually add the service provider in your `config/app.php` file
+2. Install the Filament Panel Builder
+    ```sh
+    php artisan filament:install --panels
+    ```
+3. **Optional**: The service provider will automatically get registered. Or you may manually add the service provider in your `config/app.php` file
     ```php
     'providers' => [
         // ...
         App\Providers\Filament\AdminPanelProvider::class,
     ];
-    ```
-3. Install the Filament Panel Builder
-    ```sh
-    php artisan filament:install --panels
     ```
 4. Generate tables from migration
     ```sh
