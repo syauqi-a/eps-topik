@@ -21,4 +21,9 @@ class EditPermission extends EditRecord
     {
         return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Permission updated';
+    }
 }
