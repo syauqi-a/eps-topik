@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Maklad\Permission\Models\Permission;
@@ -25,11 +25,13 @@ class PermissionResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                ->minLength(2)
-                ->maxLength(255)
-                ->required()
-                ->unique(),
+                Section::make([
+                    TextInput::make('name')
+                        ->minLength(2)
+                        ->maxLength(255)
+                        ->required()
+                        ->unique(),
+                ]),
             ]);
     }
 
