@@ -83,17 +83,54 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 
 > **NB:** Always use classes from `Mongodb\` to use as extends in model classes!
 
-> **Add default Role for new users:** 
+> ### Handles the assignment of roles to users:
 > 1. Create a new observer class
 >     ```sh
 >     php artisan make:observer UserObserver --model=User
 >     ```
 >     This command will place the new observer in your `app/Observers` directory.
-> 2. Set the role for each new user has been created. Open and update `UserObserver.php` file
+> 2. Open and modify functions `created` and `updated` in the `UserObserver.php` file
 >     ```php
->     public function created(User $user)
+>     use App\Models\User;
+>     use Maklad\Permission\Models\Role;
+> 
+>     class UserObserver
 >     {
->         $user->assignRole('User');
+>         /**
+>          * Handle the User "created" event.
+>          */
+>         public function created(User $user): void
+>         {
+>             $role_ids = $user->role_ids;
+>     
+>             if (! $role_ids) {
+>                 return;
+>             }
+> 
+>             $user->roles()->sync([]);
+>     
+>             foreach ($role_ids as $role_id) {
+>                 $user->assignRole(Role::where('_id', $role_id)->value('name'));
+>             }
+>         }
+> 
+>         /**
+>          * Handle the User "updated" event.
+>          */
+>         public function updated(User $user): void
+>         {
+>             $role_ids = $user->role_ids;
+>             $user->roles()->detach();
+>     
+>             foreach ($role_ids as $role_id) {
+>                 $role_data = Role::where('_id', $role_id)->get();
+>                 if ($role_data) {
+>                     $user->assignRole($role_data->value('name'));
+>                 }
+>             }
+>         }
+> 
+>         // ...
 >     }
 >     ```
 > 3. To register an observer, you need to call the `observe` method on the model you wish to observe. You may register observers in the `boot` method of your application's `App\Providers\EventServiceProvider` service provider:
@@ -111,7 +148,8 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```
 > 4. For more information please read [this](https://laravel.com/docs/10.x/eloquent#observers)
 
-> **NB**: In case your Role, Permission and User relationship are **not generated automatically**. Complete the following steps to add it manually.
+> ### An error occurred in the Role, Permission and User relationship
+> In case your Role, Permission and User relationship are **not generated automatically**. Complete the following steps to add it manually.
 > 1. Open `Models\`**`Role`**. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following function:
 >     ```php
 >     use MongoDB\Laravel\Eloquent\Model;
@@ -280,7 +318,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >      
 >         public function canAccessPanel(Panel $panel): bool
 >         {
->             return $this->hasAnyRole(['Super Admin', 'Admin']);
+>             return $this->hasAnyRole(['super admin', 'admin']);
 >         }
 >     }
 >     ```

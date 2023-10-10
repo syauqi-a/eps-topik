@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\User;
+use Maklad\Permission\Models\Role;
 
 class UserObserver
 {
@@ -11,7 +12,19 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $user->assignRole('User');
+        $role_ids = $user->role_ids;
+
+        if (! $role_ids) {
+            // If Role is not assigned, use the default instead
+            $user->assignRole('user');
+            return;
+        }
+
+        $user->roles()->sync([]);
+
+        foreach ($role_ids as $role_id) {
+            $user->assignRole(Role::where('_id', $role_id)->value('name'));
+        }
     }
 
     /**
@@ -19,7 +32,15 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        //
+        $role_ids = $user->role_ids;
+        $user->roles()->detach();
+
+        foreach ($role_ids as $role_id) {
+            $role_data = Role::where('_id', $role_id)->get();
+            if ($role_data) {
+                $user->assignRole($role_data->value('name'));
+            }
+        }
     }
 
     /**
