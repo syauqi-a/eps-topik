@@ -77,9 +77,7 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('email')
                     ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                TextColumn::make('roles.name'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
