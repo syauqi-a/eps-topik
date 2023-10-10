@@ -7,13 +7,15 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Maklad\Permission\Models\Role;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Maklad\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Columns\TextColumn;
 
 class RoleResource extends Resource
 {
@@ -31,8 +33,13 @@ class RoleResource extends Resource
                         ->minLength(2)
                         ->maxLength(255)
                         ->required()
-                        ->unique(),
+                        ->unique(ignoreRecord: true),
                 ]),
+                Select::make('permission_ids')
+                    ->label('Permissions')
+                    ->multiple()
+                    ->options(Permission::pluck('name', '_id'))
+                    ->preload(),
             ]);
     }
 
@@ -40,9 +47,21 @@ class RoleResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->rowIndex(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('guard_name'),
+                TextColumn::make('permission_ids')
+                    ->label('Permission')
+                    ->listWithLineBreaks()
+                    ->formatStateUsing(
+                        fn (string $state): string => Permission::find($state)
+                            ->name
+                    )
+                    ->limitList(3),
+                TextColumn::make('created_at')
+                    ->dateTime('d-M-Y')
+                    ->sortable(),
             ])
             ->filters([
                 //

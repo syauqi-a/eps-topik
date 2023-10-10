@@ -60,7 +60,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(
             config('permission.models.permission'),
-            'User',
+            User::class,
             '_id',
             'permission_ids'
         );
@@ -72,10 +72,10 @@ class User extends Authenticatable implements FilamentUser
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.models.roles'),
-            'User',
+            config('permission.models.role'),
+            User::class,
             'user_ids',
-            'role_ids'
+            'role_ids',
         );
     }
 }

@@ -12,10 +12,12 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\DateTimePicker;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use Filament\Forms\Components\Select;
+use Maklad\Permission\Models\Permission;
+use Maklad\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -48,6 +50,16 @@ class UserResource extends Resource
                         ->password()
                         ->required(fn (string $operation): bool => $operation === 'create')
                         ->maxLength(32),
+                    Select::make('role_ids')
+                        ->label('Roles')
+                        ->multiple()
+                        ->options(Role::pluck('name', '_id'))
+                        ->preload(),
+                    Select::make('permission_ids')
+                        ->label('Permissions')
+                        ->multiple()
+                        ->options(Permission::pluck('name', '_id'))
+                        ->preload(),
                 ])
                 ->columns(2),
             ]);

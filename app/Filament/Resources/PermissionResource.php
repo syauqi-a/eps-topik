@@ -31,7 +31,7 @@ class PermissionResource extends Resource
                         ->minLength(2)
                         ->maxLength(255)
                         ->required()
-                        ->unique(),
+                        ->unique(ignoreRecord: true),
                 ]),
             ]);
     }
@@ -40,9 +40,13 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('no')
+                    ->rowIndex(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('guard_name'),
+                TextColumn::make('created_at')
+                    ->dateTime('d-M-Y')
+                    ->sortable(),
             ])
             ->filters([
                 //
