@@ -18,7 +18,7 @@ class EditRole extends EditRecord
         return [
             DeleteAction::make()
                 ->before(function (DeleteAction $action, Role $record) {
-                    if ($record->name == 'Super Admin') {
+                    if ($record->name == 'super admin') {
                         Notification::make()
                             ->warning()
                             ->title('Failed to delete!')

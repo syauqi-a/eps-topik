@@ -36,6 +36,8 @@ class RoleResource extends Resource
             ->schema([
                 Section::make([
                     TextInput::make('name')
+                        ->extraInputAttributes(
+                            ['style'=>'text-transform: lowercase'], true)
                         ->minLength(2)
                         ->maxLength(255)
                         ->required()
@@ -77,7 +79,7 @@ class RoleResource extends Resource
                     EditAction::make(),
                     DeleteAction::make()
                         ->before(function (DeleteAction $action, Role $record) {
-                            if ($record->name == 'Super Admin') {
+                            if ($record->name == 'super admin') {
                                 Notification::make()
                                     ->warning()
                                     ->title('Failed to delete!')
@@ -96,7 +98,7 @@ class RoleResource extends Resource
                     DeleteBulkAction::make()
                         ->action(function (DeleteBulkAction $action, Collection $records) {
                             $records->each(function (Role $record) use ($action) {
-                                if ($record->name == 'Super Admin') {
+                                if ($record->name == 'super admin') {
                                     Notification::make()
                                         ->warning()
                                         ->title('Failed to delete!')

@@ -33,6 +33,8 @@ class PermissionResource extends Resource
             ->schema([
                 Section::make([
                     TextInput::make('name')
+                        ->extraInputAttributes(
+                            ['style'=>'text-transform: lowercase'], true)
                         ->minLength(2)
                         ->maxLength(255)
                         ->required()
