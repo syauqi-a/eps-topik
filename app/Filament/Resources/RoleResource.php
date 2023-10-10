@@ -5,14 +5,18 @@ namespace App\Filament\Resources;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Resources\Resource;
 use Maklad\Permission\Models\Role;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Maklad\Permission\Models\Permission;
+use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
@@ -68,11 +72,40 @@ class RoleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action, Role $record) {
+                        if ($record->name == 'Super Admin') {
+                            Notification::make()
+                                ->warning()
+                                ->title('Failed to delete!')
+                                ->body('You cannot delete the \'Super Admin\' role.')
+                                ->persistent()
+                                ->send();
+                        
+                            $action->cancel();
+                        }
+                    }
+                ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->action(function (DeleteBulkAction $action, Collection $records) {
+                            $records->each(function (Role $record) use ($action) {
+                                if ($record->name == 'Super Admin') {
+                                    Notification::make()
+                                        ->warning()
+                                        ->title('Failed to delete!')
+                                        ->body('You cannot delete the \'Super Admin\' role.')
+                                        ->persistent()
+                                        ->send();
+                                } else {
+                                    $record->delete();
+                                    $action->success();
+                                }
+                            });
+                        }
+                    ),
                 ]),
             ]);
     }
@@ -91,5 +124,5 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
-    }    
+    }
 }

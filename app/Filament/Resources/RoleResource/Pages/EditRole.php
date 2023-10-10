@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\RoleResource\Pages;
 
-use App\Filament\Resources\RoleResource;
 use Filament\Actions;
+use Filament\Actions\DeleteAction;
+use Maklad\Permission\Models\Role;
+use App\Filament\Resources\RoleResource;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditRole extends EditRecord
@@ -13,7 +16,20 @@ class EditRole extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make()
+                ->before(function (DeleteAction $action, Role $record) {
+                    if ($record->name == 'Super Admin') {
+                        Notification::make()
+                            ->warning()
+                            ->title('Failed to delete!')
+                            ->body('You cannot delete the \'Super Admin\' role.')
+                            ->persistent()
+                            ->send();
+
+                        $action->cancel();
+                    }
+                }
+            ),
         ];
     }
 
