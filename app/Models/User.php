@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Maklad\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use MongoDB\Laravel\Relations\BelongsToMany;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -50,5 +51,31 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['Super Admin', 'Admin']);
+    }
+
+    /**
+     * Some user may be given various permissions.
+     */
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            config('permission.models.permission'),
+            'User',
+            '_id',
+            'permission_ids'
+        );
+    }
+
+    /**
+     * Some user may be given various roles.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            config('permission.models.roles'),
+            'User',
+            'user_ids',
+            'role_ids'
+        );
     }
 }

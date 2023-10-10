@@ -111,6 +111,128 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```
 > 4. For more information please read [this](https://laravel.com/docs/10.x/eloquent#observers)
 
+> **NB**: In case your Role, Permission and User relationship are **not generated automatically**. Complete the following steps to add it manually.
+> 1. Open `Models\`**`Role`**. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following function:
+>     ```php
+>     use MongoDB\Laravel\Eloquent\Model;
+>     use Maklad\Permission\Contracts\RoleInterface;
+>     use MongoDB\Laravel\Relations\BelongsToMany;
+>     use App\Models\User;
+> 
+>     class Role extends Model implements RoleInterface
+>     {
+>         // ...
+> 
+>         /**
+>          * A role may be given various permissions.
+>          */
+>         public function permissions(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 config('permission.models.permission'),
+>                 config('permission.models.role'),
+>                 '_id',
+>                 'permission_ids'
+>             );
+>         }
+> 
+>         /**
+>          * A role belongs to some users of the model associated with its guard.
+>          * @return BelongsToMany
+>          */
+>         public function users(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 User::class,
+>                 config('permission.models.role'),
+>                 'role_ids',
+>                 'user_ids'
+>             );
+>         }
+> 
+>         // ...
+>     }
+>     ```
+> 2. Open `Models\`**`Permission`**. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following function:
+>     ```php
+>     use MongoDB\Laravel\Eloquent\Model;
+>     use Maklad\Permission\Contracts\PermissionInterface;
+>     use MongoDB\Laravel\Relations\BelongsToMany;
+>     use App\Models\User;
+> 
+>     class Permission extends Model implements PermissionInterface
+>     {
+>         // ...
+> 
+>         /**
+>          * A permission can be applied to roles.
+>          */
+>         public function roles(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 config('permission.models.role'),
+>                 config('permission.models.permission'),
+>                 'permission_ids',
+>                 '_id'
+>             );
+>         }
+> 
+>         /**
+>          * A permission belongs to some users of the model associated with its guard.
+>          * @return BelongsToMany
+>          */
+>         public function users(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 User::class,
+>                 config('permission.models.permission'),
+>                 'permission_ids',
+>                 '_id'
+>             );
+>         }
+> 
+>         // ...
+>     }
+>     ```
+> 3. Open `Models\`**`User`**. You can find it in `app\Models\` folder and **add** the following function:
+>     ```php
+>     use MongoDB\Laravel\Auth\User as Authenticatable;
+>     use MongoDB\Laravel\Relations\BelongsToMany;
+> 
+>     class User extends Authenticatable
+>     {
+>         // ...
+> 
+>         /**
+>          * Some user may be given various permissions.
+>          */
+>         public function permissions(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 config('permission.models.permission'),
+>                 User::class,
+>                 '_id',
+>                 'permission_ids'
+>             );
+>         }
+> 
+>         /**
+>          * Some user may be given various roles.
+>          */
+>         public function roles(): BelongsToMany
+>         {
+>             return $this->belongsToMany(
+>                 config('permission.models.role'),
+>                 User::class,
+>                 'user_ids',
+>                 'role_ids'
+>             );
+>         }
+> 
+>         // ...
+>     }
+>     ```
+
 ## Preparing Filament - first time
 
 1. Install the Filament package by running the following commands in your Laravel project directory
