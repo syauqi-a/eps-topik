@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\RoleResource\Pages;
 
-use Filament\Actions;
 use Filament\Actions\DeleteAction;
 use Maklad\Permission\Models\Role;
 use App\Filament\Resources\RoleResource;
@@ -18,11 +17,11 @@ class EditRole extends EditRecord
         return [
             DeleteAction::make()
                 ->before(function (DeleteAction $action, Role $record) {
-                    if ($record->name == 'super admin') {
+                    if (in_array($record->name, $record->prevent_deleting)) {
                         Notification::make()
                             ->warning()
                             ->title('Failed to delete!')
-                            ->body('You cannot delete the \'Super Admin\' role.')
+                            ->body("You cannot delete the \"{$record->name}\" role.")
                             ->persistent()
                             ->send();
 

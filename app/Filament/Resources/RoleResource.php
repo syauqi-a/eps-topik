@@ -79,11 +79,11 @@ class RoleResource extends Resource
                     EditAction::make(),
                     DeleteAction::make()
                         ->before(function (DeleteAction $action, Role $record) {
-                            if ($record->name == 'super admin') {
+                            if (in_array($record->name, $record->prevent_deleting)) {
                                 Notification::make()
                                     ->warning()
                                     ->title('Failed to delete!')
-                                    ->body('You cannot delete the \'Super Admin\' role.')
+                                    ->body("You cannot delete the \"{$record->name}\" role.")
                                     ->persistent()
                                     ->send();
                             
@@ -98,11 +98,11 @@ class RoleResource extends Resource
                     DeleteBulkAction::make()
                         ->action(function (DeleteBulkAction $action, Collection $records) {
                             $records->each(function (Role $record) use ($action) {
-                                if ($record->name == 'super admin') {
+                                if (in_array($record->name, $record->prevent_deleting)) {
                                     Notification::make()
                                         ->warning()
                                         ->title('Failed to delete!')
-                                        ->body('You cannot delete the \'Super Admin\' role.')
+                                        ->body("You cannot delete the \"{$record->name}\" role.")
                                         ->persistent()
                                         ->send();
                                 } else {

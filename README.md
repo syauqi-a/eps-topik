@@ -271,13 +271,133 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     }
 >     ```
 
+> ### Prevent role deletion
+> You can set a list of Roles that cannot be deleted.
+> 1. Open `Models\Role`. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following attribute:
+>     ```php
+>     class Role extends Model implements RoleInterface
+>     {
+>         // ...
+>         public $prevent_deleting = ['super admin', 'admin', 'user'];
+>         // ...
+>     }
+>     ```
+> 2. Open `Resources\RoleResource` and modify `DeleteAction` action
+>     ```php
+>     use Filament\Resources\Resource;
+>     use Filament\Tables\Actions\DeleteAction;
+>     use Maklad\Permission\Models\Role;
+>     use Filament\Notifications\Notification;
+> 
+>     class RoleResource extends Resource
+>     {
+>         // ...
+>         public static function table(Table $table): Table
+>         {
+>             return $table
+>                 // ...
+>                 ->actions([
+>                     // ...
+>                     DeleteAction::make()
+>                         ->before(function (DeleteAction $action, Role $record) {
+>                             if (in_array($record->name, $record->prevent_deleting)) {
+>                                 Notification::make()
+>                                     ->warning()
+>                                     ->title('Failed to delete!')
+>                                     ->body("You cannot delete the \"{$record->name}\" role.")
+>                                     ->persistent()
+>                                     ->send();
+>                             
+>                                 $action->cancel();
+>                             }
+>                         }
+>                     ),
+>                     // ...
+>                 ])
+>                 // ...
+>         }
+>         // ...
+>     }
+>     ```
+> 3. Then modify `BulkActionGroup` action
+>     ```php
+>     use Filament\Resources\Resource;
+>     use Filament\Tables\Actions\DeleteBulkAction;
+>     use Illuminate\Database\Eloquent\Collection;
+>     use Maklad\Permission\Models\Role;
+>     use Filament\Notifications\Notification;
+> 
+>     class RoleResource extends Resource
+>     {
+>         // ...
+>         public static function table(Table $table): Table
+>         {
+>             return $table
+>                 // ...
+>                 ->bulkActions([
+>                     // ...
+>                     DeleteBulkAction::make()
+>                         ->action(function (DeleteBulkAction $action, Collection $records) {
+>                             $records->each(function (Role $record) use ($action) {
+>                                 if (in_array($record->name, $record->prevent_deleting)) {
+>                                     Notification::make()
+>                                         ->warning()
+>                                         ->title('Failed to delete!')
+>                                         ->body("You cannot delete the \"{$record->name}\" role.")
+>                                         ->persistent()
+>                                         ->send();
+>                                 } else {
+>                                     $record->delete();
+>                                     $action->success();
+>                                 }
+>                             });
+>                         }
+>                     ),
+>                     // ...
+>                 ])
+>                 // ...
+>         }
+>         // ...
+>     }
+>     ```
+> 2. Open `Resources\RoleResource\EditRole` and modify `DeleteAction` action
+>     ```php
+>     use Filament\Resources\Pages\EditRecord;
+>     use Filament\Actions\DeleteAction;
+>     use Maklad\Permission\Models\Role;
+>     use Filament\Notifications\Notification;
+> 
+>     class EditRole extends EditRecord
+>     {
+>         // ...
+>         protected function getHeaderActions(): array
+>         {
+>             return [
+>                 DeleteAction::make()
+>                     ->before(function (DeleteAction $action, Role $record) {
+>                         if (in_array($record->name, $record->prevent_deleting)) {
+>                             Notification::make()
+>                                 ->warning()
+>                                 ->title('Failed to delete!')
+>                                 ->body("You cannot delete the \"{$record->name}\" role.")
+>                                 ->persistent()
+>                                 ->send();
+> 
+>                             $action->cancel();
+>                         }
+>                     }
+>                 ),
+>             ];
+>         }
+>         // ...
+>     }
+>     ```
+
 ## Preparing Filament - first time
 
 1. Install the Filament package by running the following commands in your Laravel project directory
     ```sh
     composer require filament/filament
-    # or
-    composer require filament/filament:*
     ```
 2. Install the Filament Panel Builder
     ```sh
@@ -298,6 +418,10 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     ```sh
     php artisan make:filament-user
     ```
+    > **NB**: You can also generate users using the seeders provided. **Be careful** when using `migrate:fresh` instead of `migrate`, you will lose all data on your database.
+    > ```sh
+    > php artisan migrate:fresh --seeder=DatabaseSeeder
+    > ```
 6. For more information please read [this](https://filamentphp.com/docs/3.x/panels/installation).
 
 > **Authorizing access to the panel**
