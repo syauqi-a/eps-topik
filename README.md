@@ -83,7 +83,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     ```
 4. For more information please read [this](https://github.com/mostafamaklad/laravel-permission-mongodb#laravel).
 
-> **NB:** Always use classes from `Mongodb\` to use as extends in model classes!
+> **NB:** Always use Model class from `Mongodb\Laravel\Eloquent` to use as extends in model classes!
 
 > ### Handles the assignment of roles to users:
 > 1. Create a new observer class
@@ -94,7 +94,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 > 2. Open and modify functions `created` and `updated` in the `UserObserver.php` file
 >     ```php
 >     use App\Models\User;
->     use Maklad\Permission\Models\Role;
+>     use App\Models\Role;
 > 
 >     class UserObserver
 >     {
@@ -152,14 +152,12 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 
 > ### An error occurred in the Role, Permission and User relationship
 > In case your Role, Permission and User relationship are **not generated automatically**. Complete the following steps to add it manually.
-> 1. Open `Models\`**`Role`**. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following function:
+> 1. Open `Models\`**`Role`** and **add** the following function:
 >     ```php
->     use MongoDB\Laravel\Eloquent\Model;
->     use Maklad\Permission\Contracts\RoleInterface;
+>     use Maklad\Permission\Models\Role as ModelsRole;
 >     use MongoDB\Laravel\Relations\BelongsToMany;
->     use App\Models\User;
 > 
->     class Role extends Model implements RoleInterface
+>     class Role extends ModelsRole
 >     {
 >         // ...
 > 
@@ -193,14 +191,12 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         // ...
 >     }
 >     ```
-> 2. Open `Models\`**`Permission`**. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following function:
+> 2. Open `Models\`**`Permission`** and **add** the following function:
 >     ```php
->     use MongoDB\Laravel\Eloquent\Model;
->     use Maklad\Permission\Contracts\PermissionInterface;
+>     use Maklad\Permission\Models\Permission as ModelsPermission;
 >     use MongoDB\Laravel\Relations\BelongsToMany;
->     use App\Models\User;
 > 
->     class Permission extends Model implements PermissionInterface
+>     class Permission extends ModelsPermission
 >     {
 >         // ...
 > 
@@ -234,7 +230,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         // ...
 >     }
 >     ```
-> 3. Open `Models\`**`User`**. You can find it in `app\Models\` folder and **add** the following function:
+> 3. Open `Models\`**`User`** and **add** the following function:
 >     ```php
 >     use MongoDB\Laravel\Auth\User as Authenticatable;
 >     use MongoDB\Laravel\Relations\BelongsToMany;
@@ -275,9 +271,10 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 
 > ### Prevent role deletion
 > You can set a list of Role names that cannot be deleted.
-> 1. Open `Models\Role`. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following attribute:
+> 1. Open `Models\Role` and **add** the following attribute:
 >     ```php
->     class Role extends Model implements RoleInterface
+>     use Maklad\Permission\Models\Role as ModelsRole;
+>     class Role extends ModelsRole
 >     {
 >         // ...
 >         public $prevent_deleting = ['super admin', 'admin', 'user'];
@@ -288,7 +285,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```php
 >     use Filament\Resources\Resource;
 >     use Filament\Tables\Actions\DeleteAction;
->     use Maklad\Permission\Models\Role;
+>     use App\Models\Role;
 >     use Filament\Notifications\Notification;
 > 
 >     class RoleResource extends Resource
@@ -326,7 +323,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     use Filament\Resources\Resource;
 >     use Filament\Tables\Actions\DeleteBulkAction;
 >     use Illuminate\Database\Eloquent\Collection;
->     use Maklad\Permission\Models\Role;
+>     use App\Models\Role;
 >     use Filament\Notifications\Notification;
 > 
 >     class RoleResource extends Resource
@@ -362,11 +359,11 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         // ...
 >     }
 >     ```
-> 2. Open `Resources\RoleResource\EditRole` and modify `DeleteAction` action
+> 4. Open `Resources\RoleResource\EditRole` and modify `DeleteAction` action
 >     ```php
 >     use Filament\Resources\Pages\EditRecord;
 >     use Filament\Actions\DeleteAction;
->     use Maklad\Permission\Models\Role;
+>     use App\Models\Role;
 >     use Filament\Notifications\Notification;
 > 
 >     class EditRole extends EditRecord
@@ -397,7 +394,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 
 > ### Prevent role updates
 > You can set a list of Role names that cannot be edited.
-> 1. Open `Models\Role`. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following attribute:
+> 1. Open `Models\Role` and **add** the following attribute:
 >     ```php
 >     class Role extends Model implements RoleInterface
 >     {
@@ -411,7 +408,8 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```php
 >     use Filament\Resources\Resource;
 >     use Filament\Forms\Components\TextInput;
->     use Maklad\Permission\Models\Role;
+>     use Filament\Forms\Get;
+>     use App\Models\Role;
 > 
 >     class RoleResource extends Resource
 >     {
@@ -420,16 +418,17 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         {
 >             return $form
 >                 ->schema([
->                     // ...
 >                     TextInput::make('name')
 >                         // ...
->                         ->disabled(function ($livewire): bool {
+>                         ->disabled(function (Get $get, string $operation) {
+>                             if ($operation != 'edit') {
+>                                 return false;
+>                             }
+> 
 >                             $role = new Role();
->                             return in_array($livewire->record->name, $role->prevent_editing);
+>                             return in_array($get('name'), $role->prevent_editing);
 >                         })
 >                         // ...
->                     ),
->                     // ...
 >                 ])
 >                 // ...
 >         }
@@ -470,7 +469,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 6. For more information please read [this](https://filamentphp.com/docs/3.x/panels/installation).
 
 > **Authorizing access to the panel**
-> 1. To set up your `App\Models\User` to access Filament in non-local environments, you must implement the `FilamentUser` contract:
+> 1. To set up your `Models\User` to access Filament in non-local environments, you must implement the `FilamentUser` contract:
 >     ```php
 >     <?php
 >      

@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Role;
 use App\Models\User;
 use Filament\Forms\Form;
+use App\Models\Permission;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Maklad\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -14,7 +15,6 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
-use Maklad\Permission\Models\Permission;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -77,7 +77,9 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('email')
                     ->searchable(),
-                TextColumn::make('roles.name'),
+                TextColumn::make('roles.name')
+                    ->listWithLineBreaks()
+                    ->limitList(3),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

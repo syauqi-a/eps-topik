@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
+use App\Models\Role;
 use App\Models\User;
-use Maklad\Permission\Models\Role;
 
 class UserObserver
 {

@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Role;
 use Filament\Forms\Form;
+use App\Models\Permission;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Maklad\Permission\Models\Role;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\EditAction;
@@ -13,7 +14,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
-use Maklad\Permission\Models\Permission;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -22,6 +22,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
+use Filament\Forms\Get;
 
 class RoleResource extends Resource
 {
@@ -38,9 +39,13 @@ class RoleResource extends Resource
                     TextInput::make('name')
                         ->extraInputAttributes(
                             ['style'=>'text-transform: lowercase'], true)
-                        ->disabled(function ($livewire): bool {
+                        ->disabled(function (Get $get, string $operation) {
+                            if ($operation != 'edit') {
+                                return false;
+                            }
+
                             $role = new Role();
-                            return in_array($livewire->record->name, $role->prevent_editing);
+                            return in_array($get('name'), $role->prevent_editing);
                         })
                         ->minLength(2)
                         ->maxLength(255)

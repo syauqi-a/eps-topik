@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\RoleResource\Pages;
 
+use App\Models\Role;
 use Filament\Actions\DeleteAction;
-use Maklad\Permission\Models\Role;
 use App\Filament\Resources\RoleResource;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
