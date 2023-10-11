@@ -67,6 +67,8 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     > },
     > // ...
     > ```
+    > After that, run `composer update`.
+    > 
 2. You can publish the migration with:
     ```sh
     php artisan vendor:publish --provider="Maklad\Permission\PermissionServiceProvider" --tag="migrations"
@@ -272,7 +274,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```
 
 > ### Prevent role deletion
-> You can set a list of Roles that cannot be deleted.
+> You can set a list of Role names that cannot be deleted.
 > 1. Open `Models\Role`. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following attribute:
 >     ```php
 >     class Role extends Model implements RoleInterface
@@ -392,6 +394,49 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         // ...
 >     }
 >     ```
+
+> ### Prevent role updates
+> You can set a list of Role names that cannot be edited.
+> 1. Open `Models\Role`. You can find it in `vendor\zoltech\laravel-permission-mongodb\src\Models\` folder and **add** the following attribute:
+>     ```php
+>     class Role extends Model implements RoleInterface
+>     {
+>         // ...
+>         public $prevent_editing = ['super admin'];
+>         // ...
+>     }
+>     ```
+> 2. Open `Resources\RoleResource` and modify `TextInput` for `name` input
+> 2. Open `Resources\RoleResource` and modify `DeleteAction` action
+>     ```php
+>     use Filament\Resources\Resource;
+>     use Filament\Forms\Components\TextInput;
+>     use Maklad\Permission\Models\Role;
+> 
+>     class RoleResource extends Resource
+>     {
+>         // ...
+>         public static function table(Table $table): Table
+>         {
+>             return $form
+>                 ->schema([
+>                     // ...
+>                     TextInput::make('name')
+>                         // ...
+>                         ->disabled(function ($livewire): bool {
+>                             $role = new Role();
+>                             return in_array($livewire->record->name, $role->prevent_editing);
+>                         })
+>                         // ...
+>                     ),
+>                     // ...
+>                 ])
+>                 // ...
+>         }
+>         // ...
+>     }
+>     ```
+
 
 ## Preparing Filament - first time
 

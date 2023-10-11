@@ -38,6 +38,10 @@ class RoleResource extends Resource
                     TextInput::make('name')
                         ->extraInputAttributes(
                             ['style'=>'text-transform: lowercase'], true)
+                        ->disabled(function ($livewire): bool {
+                            $role = new Role();
+                            return in_array($livewire->record->name, $role->prevent_editing);
+                        })
                         ->minLength(2)
                         ->maxLength(255)
                         ->required()
