@@ -11,6 +11,8 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use MongoDB\Laravel\Relations\BelongsToMany;
 use MongoDB\Laravel\Auth\User as Authenticatable;
+use Maklad\Permission\Exceptions\GuardDoesNotMatch;
+use Maklad\Permission\Contracts\PermissionInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable implements FilamentUser
@@ -63,8 +65,8 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(
             config('permission.models.permission'),
             User::class,
-            '_id',
-            'permission_ids'
+            'user_ids',
+            'permission_ids',
         );
     }
 
@@ -79,5 +81,33 @@ class User extends Authenticatable implements FilamentUser
             'user_ids',
             'role_ids',
         );
+    }
+
+    /**
+     * Grant the given permission(s) to some user.
+     *
+     * @param string|array|Permission $permissions
+     *
+     * @return array|Permission|string
+     * @throws GuardDoesNotMatch
+     * @throws ReflectionException
+     */
+    public function givePermissionTo(...$permissions)
+    {
+        $permissions = collect($permissions)
+            ->flatten()
+            ->map(function ($permission) {
+                return $this->getStoredPermission($permission);
+            })
+            ->each(function ($permission) {
+                $this->ensureModelSharesGuard($permission);
+            })
+            ->all();
+
+        $this->permissions()->saveMany($permissions);
+
+        $this->forgetCachedPermissions();
+
+        return $permissions;
     }
 }
