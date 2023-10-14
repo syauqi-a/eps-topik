@@ -16,10 +16,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\UserResource\Pages;
-use Filament\Tables\Filters\SelectFilter;
 
 class UserResource extends Resource
 {
@@ -69,6 +69,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $via_role = array();
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -86,6 +87,12 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('roles.permissions.name')
                     ->label('Permissions via Roles')
+                    ->formatStateUsing(function ($state) use (&$via_role) {
+                        if (!in_array($state, $via_role)) {
+                            $via_role[] = $state;
+                            return $state;
+                        }
+                    })
                     ->listWithLineBreaks()
                     ->limitList(4)
                     ->toggleable(isToggledHiddenByDefault: true),

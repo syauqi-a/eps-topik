@@ -18,7 +18,7 @@ class RoleObserver
         $role->permissions()->detach();
 
         foreach ($permission_ids as $id) {
-            $role->givePermissionTo(Permission::find($id)->value('name'));
+            $role->givePermissionTo(Permission::where('_id', $id)->value('name'));
         }
     }
 
