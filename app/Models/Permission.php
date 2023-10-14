@@ -19,12 +19,13 @@ class Permission extends ModelsPermission
             config('permission.models.role'),
             config('permission.models.permission'),
             'permission_ids',
-            '_id'
+            'role_ids'
         );
     }
 
     /**
      * A permission belongs to some users of the model associated with its guard.
+     * @return BelongsToMany
      */
     public function users(): BelongsToMany
     {
@@ -32,7 +33,7 @@ class Permission extends ModelsPermission
             User::class,
             config('permission.models.permission'),
             'permission_ids',
-            '_id'
+            'user_ids'
         );
     }
 }

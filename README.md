@@ -83,7 +83,44 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     ```
 4. For more information please read [this](https://github.com/mostafamaklad/laravel-permission-mongodb#laravel).
 
-> **NB:** Always use Model class from `Mongodb\Laravel\Eloquent` to use as extends in model classes!
+> **NB:** Always use classes from `Mongodb\` to use as extends in model classes!
+
+> ### Add local Role and Permission models:
+> Instead of using `Role` and `Permission` models from the package directly, create new ones in `App\Models` so we can track the change history of those models.
+> 1. Use the command below to generate the models
+>     ```sh
+>     php artisan make:model Role
+>     php artisan make:model Permission
+>     ```
+> 2. Open and modify `Models\Role`
+>     ```php
+>     use Maklad\Permission\Models\Role as ModelsRole;
+>     
+>     class Role extends ModelsRole
+>     {
+>         // ...
+>     }
+>     ```
+> 3. Open and modify `Models\Permission`
+>     ```php
+>     use Maklad\Permission\Models\Permission as ModelsPermission;
+>     
+>     class Permission extends ModelsPermission
+>     {
+>         // ...
+>     }
+>     ```
+> 4. Open `config\permission.php` and modify the `models`
+>     ```php
+>     <?php
+>     
+>     return [
+>         'models' => [
+>             'permission' => App\Models\Permission::class,
+>             'role' => App\Models\Role::class,
+>         ]
+>     ];
+>     ```
 
 > ### Handles the assignment of roles to users:
 > 1. Create a new observer class
@@ -169,7 +206,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >             return $this->belongsToMany(
 >                 config('permission.models.permission'),
 >                 config('permission.models.role'),
->                 '_id',
+>                 'role_ids',
 >                 'permission_ids'
 >             );
 >         }
@@ -209,7 +246,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >                 config('permission.models.role'),
 >                 config('permission.models.permission'),
 >                 'permission_ids',
->                 '_id'
+>                 'role_ids'
 >             );
 >         }
 > 
@@ -223,7 +260,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >                 User::class,
 >                 config('permission.models.permission'),
 >                 'permission_ids',
->                 '_id'
+>                 'user_ids'
 >             );
 >         }
 > 
@@ -247,7 +284,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >             return $this->belongsToMany(
 >                 config('permission.models.permission'),
 >                 User::class,
->                 '_id',
+>                 'user_ids',
 >                 'permission_ids'
 >             );
 >         }
@@ -269,11 +306,65 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     }
 >     ```
 
+> ### Error grant permission(s) to User or Role
+> To fix a bug where the `permission` collection doesn't have `user_ids` or `role_ids` after calling the `givePermissionTo` function:
+> 1. Open `Models\Role` and **add** this function:
+>     ```php
+>     class Role
+>     {
+>         // ...
+>         public function givePermissionTo(...$permissions): self
+>         {
+>             $permissions = collect($permissions)
+>                 ->flatten()
+>                 ->map(function ($permission) {
+>                     return $this->getStoredPermission($permission);
+>                 })
+>                 ->each(function ($permission) {
+>                     $this->ensureModelSharesGuard($permission);
+>                 })
+>                 ->all();
+>     
+>             $this->permissions()->saveMany($permissions);
+>     
+>             $this->forgetCachedPermissions();
+>     
+>             return $this;
+>         }
+>     }
+>     ```
+> 2. Open `Models\User` and **add** this function:
+>     ```php
+>     class User 
+>     {
+>         // ...
+>         public function givePermissionTo(...$permissions)
+>         {
+>             $permissions = collect($permissions)
+>                 ->flatten()
+>                 ->map(function ($permission) {
+>                     return $this->getStoredPermission($permission);
+>                 })
+>                 ->each(function ($permission) {
+>                     $this->ensureModelSharesGuard($permission);
+>                 })
+>                 ->all();
+>     
+>             $this->permissions()->saveMany($permissions);
+>     
+>             $this->forgetCachedPermissions();
+>     
+>             return $permissions;
+>         }
+>     }
+>     ```
+
 > ### Prevent role deletion
 > You can set a list of Role names that cannot be deleted.
 > 1. Open `Models\Role` and **add** the following attribute:
 >     ```php
 >     use Maklad\Permission\Models\Role as ModelsRole;
+> 
 >     class Role extends ModelsRole
 >     {
 >         // ...
@@ -396,7 +487,9 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 > You can set a list of Role names that cannot be edited.
 > 1. Open `Models\Role` and **add** the following attribute:
 >     ```php
->     class Role extends Model implements RoleInterface
+>     use Maklad\Permission\Models\Role as ModelsRole;
+> 
+>     class Role extends ModelsRole
 >     {
 >         // ...
 >         public $prevent_editing = ['super admin'];
@@ -404,7 +497,6 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     }
 >     ```
 > 2. Open `Resources\RoleResource` and modify `TextInput` for `name` input
-> 2. Open `Resources\RoleResource` and modify `DeleteAction` action
 >     ```php
 >     use Filament\Resources\Resource;
 >     use Filament\Forms\Components\TextInput;
@@ -420,13 +512,9 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >                 ->schema([
 >                     TextInput::make('name')
 >                         // ...
->                         ->disabled(function (Get $get, string $operation) {
->                             if ($operation != 'edit') {
->                                 return false;
->                             }
-> 
+>                         ->disabled(function (Get $get): bool {
 >                             $role = new Role();
->                             return in_array($get('name'), $role->prevent_editing);
+>                             return in_array($get('name), $role->prevent_editing);
 >                         })
 >                         // ...
 >                 ])

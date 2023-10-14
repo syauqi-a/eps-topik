@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Models\Role;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
@@ -15,14 +16,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\RoleResource\RelationManagers;
-use Filament\Forms\Get;
 
 class RoleResource extends Resource
 {
@@ -39,24 +36,20 @@ class RoleResource extends Resource
                     TextInput::make('name')
                         ->extraInputAttributes(
                             ['style'=>'text-transform: lowercase'], true)
-                        ->disabled(function (Get $get, string $operation) {
-                            if ($operation != 'edit') {
-                                return false;
-                            }
-
+                        ->disabled(function (Get $get): bool {
                             $role = new Role();
                             return in_array($get('name'), $role->prevent_editing);
                         })
-                        ->minLength(2)
+                        ->minLength(4)
                         ->maxLength(255)
                         ->required()
                         ->unique(ignoreRecord: true),
-                ]),
-                Select::make('permission_ids')
-                    ->label('Permissions')
-                    ->multiple()
-                    ->options(Permission::pluck('name', '_id'))
-                    ->preload(),
+                    Select::make('permission_ids')
+                        ->label('Permissions')
+                        ->multiple()
+                        ->options(Permission::pluck('name', '_id'))
+                        ->preload(),
+                ])->columns(2),
             ]);
     }
 
@@ -68,17 +61,13 @@ class RoleResource extends Resource
                     ->rowIndex(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('permission_ids')
-                    ->label('Permission')
+                TextColumn::make('permissions.name')
                     ->listWithLineBreaks()
-                    ->formatStateUsing(
-                        fn (string $state): string => Permission::find($state)
-                            ->name
-                    )
-                    ->limitList(3),
+                    ->limitList(4),
                 TextColumn::make('created_at')
-                    ->dateTime('d-M-Y')
-                    ->sortable(),
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //

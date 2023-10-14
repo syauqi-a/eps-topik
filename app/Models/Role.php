@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Role extends ModelsRole
 {
     use HasFactory;
+
     public $prevent_deleting = ['super admin', 'admin', 'user'];
     public $prevent_editing = ['super admin'];
 
@@ -20,7 +21,7 @@ class Role extends ModelsRole
         return $this->belongsToMany(
             config('permission.models.permission'),
             config('permission.models.role'),
-            '_id',
+            'role_ids',
             'permission_ids'
         );
     }
@@ -37,5 +38,33 @@ class Role extends ModelsRole
             'role_ids',
             'user_ids'
         );
+    }
+
+    /**
+     * Grant the given permission(s) to a role.
+     *
+     * @param string|array|Permission $permissions
+     *
+     * @return $this
+     * @throws GuardDoesNotMatch
+     * @throws ReflectionException
+     */
+    public function givePermissionTo(...$permissions): self
+    {
+        $permissions = collect($permissions)
+            ->flatten()
+            ->map(function ($permission) {
+                return $this->getStoredPermission($permission);
+            })
+            ->each(function ($permission) {
+                $this->ensureModelSharesGuard($permission);
+            })
+            ->all();
+
+        $this->permissions()->saveMany($permissions);
+
+        $this->forgetCachedPermissions();
+
+        return $this;
     }
 }

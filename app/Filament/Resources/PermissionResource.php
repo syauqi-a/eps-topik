@@ -2,22 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use MongoDB\Laravel\Eloquent\Builder;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PermissionResource\Pages;
-use App\Filament\Resources\PermissionResource\RelationManagers;
 
 class PermissionResource extends Resource
 {
@@ -36,9 +39,37 @@ class PermissionResource extends Resource
                             ['style'=>'text-transform: lowercase'], true)
                         ->minLength(2)
                         ->maxLength(255)
-                        ->required()
+                        ->requiredWithout('model_name')
                         ->unique(ignoreRecord: true),
                 ]),
+                Section::make('Resource')
+                    ->description('You can select permissions from the resources here, instead of inputting them manually.')
+                    ->icon('heroicon-o-rectangle-group')
+                    ->schema([
+                        Select::make('model_name')
+                            ->options(function () {
+                                $path = app_path('Models') . '/*.php';
+                                $models = array();
+                                collect(glob($path))->map(function ($file) use (&$models) {
+                                    $models[basename($file, '.php')] = basename($file, '.php');
+                                });
+                                return $models;
+                            })
+                            ->live(onBlur: true)
+                            ->native(false),
+                        CheckboxList::make('permissions')
+                            ->options([
+                                'view' => 'Show',
+                                'create' => 'Create',
+                                'edit' => 'Update',
+                                'delete' => 'Delete',
+                            ])
+                            ->bulkToggleable()
+                            ->hidden(fn (Get $get) => $get('model_name') == null)
+                            ->requiredWith('model_name')
+                            ->columns(['sm' => 2]),
+                    ])
+                    ->collapsed(),
             ]);
     }
 
@@ -51,11 +82,25 @@ class PermissionResource extends Resource
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime('d-M-Y')
+                    ->dateTime('d M Y')
                     ->sortable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('model')
+                    ->options(function () {
+                        $path = app_path('Models') . '/*.php';
+                        $models = array();
+                        collect(glob($path))->map(function ($file) use (&$models) {
+                            $name = basename($file, '.php');
+                            $models[Str::lower($name)] = $name;
+                        });
+                        return $models;
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->where('name', 'LIKE', '%'.Str::plural($data['value']).'%')
+                            ->orWhere('name', 'LIKE', '%'.$data['value'].'%');
+                    }),
             ])
             ->actions([
                 ActionGroup::make([
