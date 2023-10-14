@@ -21,7 +21,7 @@ class UserObserver
         $user->roles()->detach();
         
         foreach ($role_ids as $id) {
-            $user->assignRole(Role::find($id)->value('name'));
+            $user->assignRole(Role::where('_id', $id)->value('name'));
         }
     }
 
@@ -36,7 +36,7 @@ class UserObserver
         $user->permissions()->detach();
 
         foreach ($permission_ids as $id) {
-            $user->givePermissionTo(Permission::find($id)->value('name'));
+            $user->givePermissionTo(Permission::where('_id', $id)->value('name'));
         }
     }
 

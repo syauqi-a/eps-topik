@@ -12,7 +12,6 @@ use Filament\Models\Contracts\FilamentUser;
 use MongoDB\Laravel\Relations\BelongsToMany;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Maklad\Permission\Exceptions\GuardDoesNotMatch;
-use Maklad\Permission\Contracts\PermissionInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable implements FilamentUser
