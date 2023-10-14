@@ -51,9 +51,6 @@ class RoleResource extends Resource
                         ->preload(),
                 ])->columns(2),
             ]);
-        // [ ] make new section for permission
-        // [ ] user can choose model to grant permission
-        // [ ] user can choose type of permission from list
     }
 
     public static function table(Table $table): Table
