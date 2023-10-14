@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -13,12 +12,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Maklad\Permission\Models\Permission;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PermissionResource\Pages;
-use App\Filament\Resources\PermissionResource\RelationManagers;
 
 class PermissionResource extends Resource
 {
@@ -52,7 +48,7 @@ class PermissionResource extends Resource
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime('d-M-Y')
+                    ->dateTime('d M Y')
                     ->sortable(),
             ])
             ->filters([

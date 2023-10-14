@@ -2,29 +2,51 @@
 
 namespace App\Observers;
 
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     */
-    public function created(User $user): void
+    private function updateRoles(User $user, bool $is_create): void
     {
         $role_ids = $user->role_ids;
 
-        if (! $role_ids) {
+        if ($is_create and empty($role_ids)) {
             // If Role is not assigned, use the default instead
             $user->assignRole('user');
             return;
         }
 
-        $user->roles()->sync([]);
-
-        foreach ($role_ids as $role_id) {
-            $user->assignRole(Role::where('_id', $role_id)->value('name'));
+        $user->roles()->detach();
+        
+        foreach ($role_ids as $id) {
+            $user->assignRole(Role::find($id)->value('name'));
         }
+    }
+
+    private function updatePermissions(User $user): void
+    {
+        $permission_ids = $user->permission_ids;
+
+        if (empty($permission_ids)) {
+            return;
+        }
+
+        $user->permissions()->detach();
+
+        foreach ($permission_ids as $id) {
+            $user->givePermissionTo(Permission::find($id)->value('name'));
+        }
+    }
+
+    /**
+     * Handle the User "created" event.
+     */
+    public function created(User $user): void
+    {
+        $this->updateRoles($user, true);
+        $this->updatePermissions($user);
     }
 
     /**
@@ -32,15 +54,8 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        $role_ids = $user->role_ids;
-        $user->roles()->detach();
-
-        foreach ($role_ids as $role_id) {
-            $role_data = Role::where('_id', $role_id)->get();
-            if ($role_data) {
-                $user->assignRole($role_data->value('name'));
-            }
-        }
+        $this->updateRoles($user, false);
+        $this->updatePermissions($user);
     }
 
     /**
@@ -48,7 +63,8 @@ class UserObserver
      */
     public function deleted(User $user): void
     {
-        //
+        $user->roles()->detach();
+        $user->permissions()->detach();
     }
 
     /**
@@ -64,6 +80,7 @@ class UserObserver
      */
     public function forceDeleted(User $user): void
     {
-        //
+        $user->roles()->detach();
+        $user->permissions()->detach();
     }
 }

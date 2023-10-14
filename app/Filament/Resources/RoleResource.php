@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Role;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Maklad\Permission\Models\Role;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\EditAction;
@@ -15,13 +16,10 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Maklad\Permission\Models\Permission;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\RoleResource\RelationManagers;
 
 class RoleResource extends Resource
 {
@@ -38,21 +36,24 @@ class RoleResource extends Resource
                     TextInput::make('name')
                         ->extraInputAttributes(
                             ['style'=>'text-transform: lowercase'], true)
-                        ->disabled(function ($livewire): bool {
+                        ->disabled(function (Get $get): bool {
                             $role = new Role();
-                            return in_array($livewire->record->name, $role->prevent_editing);
+                            return in_array($get('name'), $role->prevent_editing);
                         })
-                        ->minLength(2)
+                        ->minLength(4)
                         ->maxLength(255)
                         ->required()
                         ->unique(ignoreRecord: true),
-                ]),
-                Select::make('permission_ids')
-                    ->label('Permissions')
-                    ->multiple()
-                    ->options(Permission::pluck('name', '_id'))
-                    ->preload(),
+                    Select::make('permission_ids')
+                        ->label('Permissions')
+                        ->multiple()
+                        ->options(Permission::pluck('name', '_id'))
+                        ->preload(),
+                ])->columns(2),
             ]);
+        // [ ] make new section for permission
+        // [ ] user can choose model to grant permission
+        // [ ] user can choose type of permission from list
     }
 
     public static function table(Table $table): Table
@@ -63,17 +64,13 @@ class RoleResource extends Resource
                     ->rowIndex(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('permission_ids')
-                    ->label('Permission')
+                TextColumn::make('permissions.name')
                     ->listWithLineBreaks()
-                    ->formatStateUsing(
-                        fn (string $state): string => Permission::find($state)
-                            ->name
-                    )
-                    ->limitList(3),
+                    ->limitList(4),
                 TextColumn::make('created_at')
-                    ->dateTime('d-M-Y')
-                    ->sortable(),
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //

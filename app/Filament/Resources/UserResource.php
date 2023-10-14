@@ -16,12 +16,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Maklad\Permission\Models\Permission;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\UserResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\UserResource\RelationManagers;
+use Filament\Tables\Filters\SelectFilter;
 
 class UserResource extends Resource
 {
@@ -40,8 +38,9 @@ class UserResource extends Resource
                         ->required()
                         ->maxLength(32),
                     TextInput::make('email')
-                        ->email(6)
+                        ->email()
                         ->required()
+                        ->unique(ignoreRecord: true)
                         ->maxLength(100),
                     TextInput::make('password')
                         ->password()
@@ -64,8 +63,7 @@ class UserResource extends Resource
                         ->multiple()
                         ->options(Permission::pluck('name', '_id'))
                         ->preload(),
-                ])
-                ->columns(2),
+                ])->columns(2),
             ]);
     }
 
@@ -77,13 +75,29 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('email')
                     ->searchable(),
-                TextColumn::make('roles.name'),
+                TextColumn::make('roles.name')
+                    ->listWithLineBreaks()
+                    ->limitList(4)
+                    ->toggleable(),
+                TextColumn::make('permissions.name')
+                    ->label('Direct Permissions')
+                    ->listWithLineBreaks()
+                    ->limitList(4)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('roles.permissions.name')
+                    ->label('Permissions via Roles')
+                    ->listWithLineBreaks()
+                    ->limitList(4)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime('d M Y')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('role_ids')
+                    ->label('Role')
+                    ->options(Role::pluck('name', '_id'))
             ])
             ->actions([
                 ActionGroup::make([
@@ -94,7 +108,7 @@ class UserResource extends Resource
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])->label('Group Actions'),
             ]);
     }
     
