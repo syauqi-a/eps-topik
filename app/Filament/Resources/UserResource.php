@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -20,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\UserResource\Pages;
+use Filament\Tables\Columns\Column;
 
 class UserResource extends Resource
 {
@@ -69,7 +71,10 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $via_role = array();
+        $via_role = (object) array(
+            'index' => 0,
+            'permissions' => array(),
+        );
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -87,9 +92,13 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('roles.permissions.name')
                     ->label('Permissions via Roles')
-                    ->formatStateUsing(function ($state) use (&$via_role) {
-                        if (!in_array($state, $via_role)) {
-                            $via_role[] = $state;
+                    ->formatStateUsing(function ($state, Column $column) use (&$via_role) {
+                        if ($via_role->index != $column->getRowLoop()->index) {
+                            $via_role->index++;
+                            $via_role->permissions = array();
+                        }
+                        if (!in_array($state, $via_role->permissions)) {
+                            $via_role->permissions[] = $state;
                             return $state;
                         }
                     })
