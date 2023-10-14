@@ -69,7 +69,8 @@ class PermissionResource extends Resource
                             ->requiredWith('model_name')
                             ->columns(['sm' => 2]),
                     ])
-                    ->collapsed(),
+                    ->collapsed()
+                    ->hidden(fn (string $operation): bool => $operation === 'edit'),
             ]);
     }
 
