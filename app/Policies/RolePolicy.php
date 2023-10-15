@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RolePolicy
 {
@@ -13,7 +12,11 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['super admin', 'admin']);
+        try {
+            return $user->hasRole(['super admin', 'admin']);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -21,10 +24,14 @@ class RolePolicy
      */
     public function view(User $user, Role $role): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('view roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('view roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -32,10 +39,14 @@ class RolePolicy
      */
     public function create(User $user): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('create roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('create roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -43,10 +54,14 @@ class RolePolicy
      */
     public function update(User $user, Role $role): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('edit roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('edit roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -54,10 +69,14 @@ class RolePolicy
      */
     public function delete(User $user, Role $role): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -65,10 +84,14 @@ class RolePolicy
      */
     public function restore(User $user, Role $role): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -76,9 +99,13 @@ class RolePolicy
      */
     public function forceDelete(User $user, Role $role): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete roles')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete roles')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 }

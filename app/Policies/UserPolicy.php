@@ -12,7 +12,11 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['super admin', 'admin']);
+        try {
+            return $user->hasRole(['super admin', 'admin']);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -20,10 +24,14 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('view users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('view users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -31,10 +39,14 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('create users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('create users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -42,10 +54,14 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return (
-            $user->hasRole(['super admin', 'admin']) or
-            $user->hasPermissionTo('edit users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin', 'admin']) or
+                $user->hasPermissionTo('edit users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -53,10 +69,14 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -64,10 +84,14 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     /**
@@ -75,9 +99,13 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return (
-            $user->hasRole(['super admin']) or
-            $user->hasPermissionTo('delete users')
-        );
+        try {
+            return (
+                $user->hasRole(['super admin']) or
+                $user->hasPermissionTo('delete users')
+            );
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 }
