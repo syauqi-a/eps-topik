@@ -13,27 +13,33 @@ class UserObserver
         $role_ids = $user->role_ids;
 
         if ($is_create and empty($role_ids)) {
-            // If Role is not assigned, use the default instead
-            $user->assignRole('user');
             return;
         }
 
         $user->roles()->detach();
+
+        if (empty($role_ids)) {
+            return;
+        }
         
         foreach ($role_ids as $id) {
             $user->assignRole(Role::where('_id', $id)->value('name'));
         }
     }
 
-    private function updatePermissions(User $user): void
+    private function updatePermissions(User $user, bool $is_create): void
     {
         $permission_ids = $user->permission_ids;
 
-        if (empty($permission_ids)) {
+        if ($is_create and empty($permission_ids)) {
             return;
         }
 
         $user->permissions()->detach();
+
+        if (empty($permission_ids)) {
+            return;
+        }
 
         foreach ($permission_ids as $id) {
             $user->givePermissionTo(Permission::where('_id', $id)->value('name'));
@@ -46,7 +52,7 @@ class UserObserver
     public function created(User $user): void
     {
         $this->updateRoles($user, true);
-        $this->updatePermissions($user);
+        $this->updatePermissions($user, true);
     }
 
     /**
@@ -55,7 +61,7 @@ class UserObserver
     public function updated(User $user): void
     {
         $this->updateRoles($user, false);
-        $this->updatePermissions($user);
+        $this->updatePermissions($user, false);
     }
 
     /**

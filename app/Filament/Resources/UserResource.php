@@ -13,7 +13,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -22,6 +21,7 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\UserResource\Pages;
 use Filament\Tables\Columns\Column;
+use Illuminate\Support\HtmlString;
 
 class UserResource extends Resource
 {
@@ -62,6 +62,11 @@ class UserResource extends Resource
                         ->preload(),
                     Select::make('permission_ids')
                         ->label('Permissions')
+                        ->helperText(
+                            new HtmlString(
+                                '<b>Users</b> should <i>rarely</i> be given "direct" permissions. Best if Users inherit permissions via the Roles that they\'re assigned to.'
+                            )
+                        )
                         ->multiple()
                         ->options(Permission::pluck('name', '_id'))
                         ->preload(),

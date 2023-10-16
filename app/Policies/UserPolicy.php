@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -13,7 +12,7 @@ class UserPolicy
     public function viewAny(User $user): bool
     {
         try {
-            return $user->hasRole(['super admin', 'admin']);
+            return $user->hasPermissionTo('view users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -25,10 +24,7 @@ class UserPolicy
     public function view(User $user, User $model): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('view users')
-            );
+            return $user->hasPermissionTo('view users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -40,10 +36,7 @@ class UserPolicy
     public function create(User $user): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('create users')
-            );
+            return $user->hasPermissionTo('create users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -55,10 +48,7 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('edit users')
-            );
+            return $user->hasPermissionTo('edit users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -70,10 +60,7 @@ class UserPolicy
     public function delete(User $user, User $model): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete users')
-            );
+            return $user->hasPermissionTo('delete users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -85,10 +72,7 @@ class UserPolicy
     public function restore(User $user, User $model): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete users')
-            );
+            return $user->hasPermissionTo('edit users');
         } catch (\Throwable $th) {
             return false;
         }
@@ -100,10 +84,7 @@ class UserPolicy
     public function forceDelete(User $user, User $model): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete users')
-            );
+            return $user->hasPermissionTo('delete users');
         } catch (\Throwable $th) {
             return false;
         }

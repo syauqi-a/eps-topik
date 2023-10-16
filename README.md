@@ -68,7 +68,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
     > // ...
     > ```
     > After that, run `composer update`.
-    > 
+
 2. You can publish the migration with:
     ```sh
     php artisan vendor:publish --provider="Maklad\Permission\PermissionServiceProvider" --tag="migrations"
@@ -104,7 +104,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 > 3. Open and modify `Models\Permission`
 >     ```php
 >     use Maklad\Permission\Models\Permission as ModelsPermission;
->     
+> 
 >     class Permission extends ModelsPermission
 >     {
 >         // ...
@@ -113,7 +113,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 > 4. Open `config\permission.php` and modify the `models`
 >     ```php
 >     <?php
->     
+> 
 >     return [
 >         'models' => [
 >             'permission' => App\Models\Permission::class,
@@ -141,15 +141,15 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         public function created(User $user): void
 >         {
 >             $role_ids = $user->role_ids;
->     
->             if (! $role_ids) {
+> 
+>             if (empty($role_ids)) {
 >                 return;
 >             }
 > 
->             $user->roles()->sync([]);
->     
->             foreach ($role_ids as $role_id) {
->                 $user->assignRole(Role::where('_id', $role_id)->value('name'));
+>             $user->roles()->detach();
+> 
+>             foreach ($role_ids as $id) {
+>                 $user->assignRole(Role::where('_id', $id)->value('name'));
 >             }
 >         }
 > 
@@ -159,8 +159,13 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         public function updated(User $user): void
 >         {
 >             $role_ids = $user->role_ids;
+> 
 >             $user->roles()->detach();
->     
+> 
+>             if (empty($role_ids)) {
+>                 return;
+>             }
+> 
 >             foreach ($role_ids as $role_id) {
 >                 $role_data = Role::where('_id', $role_id)->get();
 >                 if ($role_data) {
@@ -176,7 +181,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     ```php
 >     use App\Models\User;
 >     use App\Observers\UserObserver;
->      
+> 
 >     /**
 >      * Register any events for your application.
 >      */
@@ -368,7 +373,8 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     class Role extends ModelsRole
 >     {
 >         // ...
->         public $prevent_deleting = ['super admin', 'admin', 'user'];
+>         // Prevent record editing
+>         public $prevent_deleting = ['Super Admin', 'Admin'];
 >         // ...
 >     }
 >     ```
@@ -483,7 +489,7 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     }
 >     ```
 
-> ### Prevent role updates
+> ### Prevent role name updates
 > You can set a list of Role names that cannot be edited.
 > 1. Open `Models\Role` and **add** the following attribute:
 >     ```php
@@ -492,7 +498,8 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >     class Role extends ModelsRole
 >     {
 >         // ...
->         public $prevent_editing = ['super admin'];
+>         // Prevent name editing
+>         public $prevent_editing = ['Super Admin', 'Admin'];
 >         // ...
 >     }
 >     ```
@@ -523,7 +530,6 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 >         // ...
 >     }
 >     ```
-
 
 ## Preparing Filament - first time
 
@@ -560,25 +566,24 @@ EPS-TOPIK exam web browser project by CuBe. This project is written in PHP and w
 > 1. To set up your `Models\User` to access Filament in non-local environments, you must implement the `FilamentUser` contract:
 >     ```php
 >     <?php
->      
+> 
 >     namespace App\Models;
->      
+> 
 >     use Filament\Models\Contracts\FilamentUser;
 >     use Filament\Panel;
 >     use Illuminate\Foundation\Auth\User as Authenticatable;
 >     // use MongoDB\Laravel\Auth\User as Authenticatable;  // if you used MongoDB
->      
+> 
 >     class User extends Authenticatable implements FilamentUser
 >     {
 >         // ...
->      
+> 
 >         public function canAccessPanel(Panel $panel): bool
 >         {
->             return $this->hasAnyRole(['super admin', 'admin']);
+>             return $this->hasAnyRole(['Super Admin', 'Admin']);
 >         }
 >     }
 >     ```
-> 
 
 ## Run App (EPS TOPIK Quiz)
 

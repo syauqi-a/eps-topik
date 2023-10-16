@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Models\Role;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
@@ -34,16 +35,19 @@ class RoleResource extends Resource
             ->schema([
                 Section::make([
                     TextInput::make('name')
-                        ->extraInputAttributes(
-                            ['style'=>'text-transform: lowercase'], true)
+                        ->afterStateUpdated(function (Set $set, ?string $state) {
+                            $set('name', ucwords(strtolower($state)));
+                        })
                         ->disabled(function (Get $get): bool {
                             $role = new Role();
                             return in_array($get('name'), $role->prevent_editing);
                         })
+                        ->live(onBlur: true)
                         ->minLength(4)
                         ->maxLength(255)
                         ->required()
-                        ->unique(ignoreRecord: true),
+                        ->unique(ignoreRecord: true)
+                        ->helperText('To standardize naming, the name will automatically be changed to Titlecase.'),
                     Select::make('permission_ids')
                         ->label('Permissions')
                         ->multiple()

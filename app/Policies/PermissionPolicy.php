@@ -13,7 +13,7 @@ class PermissionPolicy
     public function viewAny(User $user): bool
     {
         try {
-            return $user->hasRole(['super admin', 'admin']);
+            return $user->hasPermissionTo('view permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -25,10 +25,7 @@ class PermissionPolicy
     public function view(User $user, Permission $permission): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('view permissions')
-            );
+            return $user->hasPermissionTo('view permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -40,10 +37,7 @@ class PermissionPolicy
     public function create(User $user): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('create permissions')
-            );
+            return $user->hasPermissionTo('create permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -55,10 +49,7 @@ class PermissionPolicy
     public function update(User $user, Permission $permission): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('edit permissions')
-            );
+            return $user->hasPermissionTo('edit permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -70,10 +61,7 @@ class PermissionPolicy
     public function delete(User $user, Permission $permission): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete permissions')
-            );
+            return $user->hasPermissionTo('delete permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -85,10 +73,7 @@ class PermissionPolicy
     public function restore(User $user, Permission $permission): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete permissions')
-            );
+            return $user->hasPermissionTo('edit permissions');
         } catch (\Throwable $th) {
             return false;
         }
@@ -100,10 +85,7 @@ class PermissionPolicy
     public function forceDelete(User $user, Permission $permission): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete permissions')
-            );
+            return $user->hasPermissionTo('delete permissions');
         } catch (\Throwable $th) {
             return false;
         }

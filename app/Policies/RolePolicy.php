@@ -13,7 +13,7 @@ class RolePolicy
     public function viewAny(User $user): bool
     {
         try {
-            return $user->hasRole(['super admin', 'admin']);
+            return $user->hasPermissionTo('view roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -25,10 +25,7 @@ class RolePolicy
     public function view(User $user, Role $role): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('view roles')
-            );
+            return $user->hasPermissionTo('view roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -40,10 +37,7 @@ class RolePolicy
     public function create(User $user): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('create roles')
-            );
+            return $user->hasPermissionTo('create roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -55,10 +49,7 @@ class RolePolicy
     public function update(User $user, Role $role): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin', 'admin']) or
-                $user->hasPermissionTo('edit roles')
-            );
+            return $user->hasPermissionTo('edit roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -70,10 +61,7 @@ class RolePolicy
     public function delete(User $user, Role $role): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete roles')
-            );
+            return $user->hasPermissionTo('delete roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -85,10 +73,7 @@ class RolePolicy
     public function restore(User $user, Role $role): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete roles')
-            );
+            return $user->hasPermissionTo('edit roles');
         } catch (\Throwable $th) {
             return false;
         }
@@ -100,10 +85,7 @@ class RolePolicy
     public function forceDelete(User $user, Role $role): bool
     {
         try {
-            return (
-                $user->hasRole(['super admin']) or
-                $user->hasPermissionTo('delete roles')
-            );
+            return $user->hasPermissionTo('delete roles');
         } catch (\Throwable $th) {
             return false;
         }

@@ -7,15 +7,19 @@ use App\Models\Permission;
 
 class RoleObserver
 {
-    private function updatePermissions(Role $role): void
+    private function updatePermissions(Role $role, bool $is_create): void
     {
         $permission_ids = $role->permission_ids;
 
-        if (empty($permission_ids)) {
+        if ($is_create and empty($permission_ids)) {
             return;
         }
 
         $role->permissions()->detach();
+
+        if (empty($permission_ids)) {
+            return;
+        }
 
         foreach ($permission_ids as $id) {
             $role->givePermissionTo(Permission::where('_id', $id)->value('name'));
@@ -27,7 +31,7 @@ class RoleObserver
      */
     public function created(Role $role): void
     {
-        $this->updatePermissions($role);
+        $this->updatePermissions($role, true);
     }
 
     /**
@@ -35,7 +39,7 @@ class RoleObserver
      */
     public function updated(Role $role): void
     {
-        $this->updatePermissions($role);
+        $this->updatePermissions($role, false);
     }
 
     /**

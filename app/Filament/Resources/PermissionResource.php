@@ -40,7 +40,8 @@ class PermissionResource extends Resource
                         ->minLength(2)
                         ->maxLength(255)
                         ->requiredWithout('model_name')
-                        ->unique(ignoreRecord: true),
+                        ->unique(ignoreRecord: true)
+                        ->helperText('To standardize naming, the name will automatically be changed to Lowercase.'),
                 ]),
                 Section::make('Resource')
                     ->description('You can select permissions from the resources here, instead of inputting them manually.')

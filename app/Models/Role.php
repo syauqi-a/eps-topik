@@ -10,8 +10,11 @@ class Role extends ModelsRole
 {
     use HasFactory;
 
-    public $prevent_deleting = ['super admin', 'admin', 'user'];
-    public $prevent_editing = ['super admin'];
+    // Prevent record editing
+    public $prevent_deleting = ['Super Admin', 'Admin'];
+
+    // Prevent name editing
+    public $prevent_editing = ['Super Admin', 'Admin'];
 
     /**
      * A role may be given various permissions.
