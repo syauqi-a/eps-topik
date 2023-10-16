@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
@@ -35,8 +36,9 @@ class PermissionResource extends Resource
             ->schema([
                 Section::make([
                     TextInput::make('name')
-                        ->extraInputAttributes(
-                            ['style'=>'text-transform: lowercase'], true)
+                        ->afterStateUpdated(function (Set $set, ?string $state) {
+                            $set('name', strtolower($state));
+                        })
                         ->minLength(2)
                         ->maxLength(255)
                         ->requiredWithout('model_name')
