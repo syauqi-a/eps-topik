@@ -19,14 +19,13 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
-class AdminPanelProvider extends PanelProvider
+class TeacherPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('teacher')
+            ->path('teacher')
             ->login()
             ->profile()
             ->userMenuItems([
@@ -35,20 +34,25 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-home')
                     ->url('/'),
                 MenuItem::make()
-                    ->label('Teacher')
-                    ->icon('heroicon-o-academic-cap')
-                    ->url('/teacher')
-                    ->visible(fn (): bool => auth()->user()->isTeacher()),
+                    ->label('Admin')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->url('/admin')
+                    ->visible(fn (): bool => auth()->user()->isAdmin()),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'danger' => Color::Red,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'primary' => Color::Lime,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Teacher/Resources'), for: 'App\\Filament\\Teacher\\Resources')
+            ->discoverPages(in: app_path('Filament/Teacher/Pages'), for: 'App\\Filament\\Teacher\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Teacher/Widgets'), for: 'App\\Filament\\Teacher\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
             ])

@@ -60,7 +60,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(
             config('permission.models.permission'),
-            User::class,
+            null,
             'user_ids',
             'permission_ids',
         );
@@ -73,7 +73,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(
             config('permission.models.role'),
-            User::class,
+            null,
             'user_ids',
             'role_ids',
         );
@@ -109,7 +109,12 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->hasRole('Admin');
+        return $this->hasRole(['Super Admin', 'Admin']);
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->hasRole('Teacher');
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -120,7 +125,11 @@ class User extends Authenticatable implements FilamentUser
             return true;
         }
 
-        if ($panel_id === 'admin' and $this->isAdmin()) {
+        if ($panel_id === 'admin' && $this->isAdmin()) {
+            return true;
+        }
+
+        if ($panel_id === 'teacher' && $this->isTeacher()) {
             return true;
         }
 

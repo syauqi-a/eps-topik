@@ -42,7 +42,6 @@ class RoleResource extends Resource
                             $role = new Role();
                             return in_array($get('name'), $role->prevent_editing);
                         })
-                        ->live(onBlur: true)
                         ->minLength(4)
                         ->maxLength(255)
                         ->required()
