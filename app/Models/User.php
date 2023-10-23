@@ -18,6 +18,8 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    protected $connection = 'mongodb';
+
     /**
      * The attributes that are mass assignable.
      *
