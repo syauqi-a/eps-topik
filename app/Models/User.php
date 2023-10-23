@@ -53,18 +53,6 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
     ];
 
-    public function canAccessPanel(Panel $panel): bool
-    {
-        try {
-            return (
-                $this->hasRole(['Super Admin', 'Admin']) or
-                $this->hasPermissionTo('view panels')
-            );
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
-
     /**
      * Some user may be given various permissions.
      */
@@ -117,5 +105,25 @@ class User extends Authenticatable implements FilamentUser
         $this->forgetCachedPermissions();
 
         return $permissions;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Admin');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        $panel_id = $panel->getId();
+
+        if ($panel_id === 'app') {
+            return true;
+        }
+
+        if ($panel_id === 'admin' and $this->isAdmin()) {
+            return true;
+        }
+
+        return false;
     }
 }
