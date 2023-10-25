@@ -81,7 +81,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Some user may take multiple courses.
+     * Some student may take multiple courses.
      */
     public function student_has_courses(): BelongsToMany
     {
@@ -89,6 +89,19 @@ class User extends Authenticatable implements FilamentUser
             Course::class,
             null,
             'student_ids',
+            'course_ids',
+        );
+    }
+
+    /**
+     * Some teacher may has multiple courses.
+     */
+    public function teacher_has_courses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Course::class,
+            null,
+            'teacher_ids',
             'course_ids',
         );
     }
