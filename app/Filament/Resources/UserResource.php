@@ -127,9 +127,7 @@ class UserResource extends Resource
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ])->label('Group Actions'),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

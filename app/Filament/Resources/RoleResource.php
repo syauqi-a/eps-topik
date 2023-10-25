@@ -99,32 +99,30 @@ class RoleResource extends Resource
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->action(function (
-                            Tables\Actions\DeleteBulkAction $action,
-                            Collection $records
-                        ) {
-                            $records->each(function (Model $record) use ($action) {
-                                if (in_array(
-                                    $record->name, $record->prevent_deleting
-                                )) {
-                                    Notification::make()
-                                        ->warning()
-                                        ->title('Failed to delete!')
-                                        ->body(
-                                            "You cannot delete the \"{$record->name}\" role."
-                                        )
-                                        ->persistent()
-                                        ->send();
-                                } else {
-                                    $record->delete();
-                                    $action->success();
-                                }
-                            });
-                        }
-                    ),
-                ]),
+                Tables\Actions\DeleteBulkAction::make()
+                    ->action(function (
+                        Tables\Actions\DeleteBulkAction $action,
+                        Collection $records
+                    ) {
+                        $records->each(function (Model $record) use ($action) {
+                            if (in_array(
+                                $record->name, $record->prevent_deleting
+                            )) {
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Failed to delete!')
+                                    ->body(
+                                        "You cannot delete the \"{$record->name}\" role."
+                                    )
+                                    ->persistent()
+                                    ->send();
+                            } else {
+                                $record->delete();
+                                $action->success();
+                            }
+                        });
+                    }
+                ),
             ]);
     }
     
