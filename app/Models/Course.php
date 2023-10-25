@@ -42,7 +42,7 @@ class Course extends Model
         return $this->belongsToMany(
             User::class,
             null,
-            'course_ids',
+            'student_course_ids',
             'student_ids',
         );
     }
@@ -52,7 +52,7 @@ class Course extends Model
         return $this->belongsToMany(
             User::class,
             null,
-            'course_ids',
+            'teacher_course_ids',
             'teacher_ids',
         );
     }

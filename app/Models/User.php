@@ -89,7 +89,7 @@ class User extends Authenticatable implements FilamentUser
             Course::class,
             null,
             'student_ids',
-            'course_ids',
+            'student_course_ids',
         );
     }
 
@@ -102,7 +102,7 @@ class User extends Authenticatable implements FilamentUser
             Course::class,
             null,
             'teacher_ids',
-            'course_ids',
+            'teacher_course_ids',
         );
     }
 
