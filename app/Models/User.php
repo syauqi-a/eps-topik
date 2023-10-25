@@ -19,6 +19,7 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $connection = 'mongodb';
+    protected $primaryKey = '_id';
 
     /**
      * The attributes that are mass assignable.
@@ -76,6 +77,19 @@ class User extends Authenticatable implements FilamentUser
             null,
             'user_ids',
             'role_ids',
+        );
+    }
+
+    /**
+     * Some user may take multiple courses.
+     */
+    public function student_has_courses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Course::class,
+            null,
+            'student_ids',
+            'course_ids',
         );
     }
 
