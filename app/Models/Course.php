@@ -23,7 +23,7 @@ class Course extends Model
         'slug',
         'description',
         'is_private',
-        'created_by_id',
+        'created_by',
         'teacher_ids',
         'students_ids',
     ];

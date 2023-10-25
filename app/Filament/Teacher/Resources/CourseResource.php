@@ -27,7 +27,6 @@ class CourseResource extends Resource
                 Forms\Components\Section::make([
                     Forms\Components\TextInput::make('name')
                         ->required()
-                        ->live(onBlur: true)
                         ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
                             if (($get('slug') ?? '') !== Str::slug($old)) {
                                 return;

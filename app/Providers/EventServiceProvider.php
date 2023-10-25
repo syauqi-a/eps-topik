@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Course;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Observers\CourseObserver;
 use App\Observers\PermissionObserver;
 use App\Observers\RoleObserver;
 use App\Observers\UserObserver;
@@ -34,6 +36,7 @@ class EventServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         Role::observe(RoleObserver::class);
         Permission::observe(PermissionObserver::class);
+        Course::observe(CourseObserver::class);
     }
 
     /**
