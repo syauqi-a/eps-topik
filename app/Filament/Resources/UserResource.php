@@ -2,26 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
 use App\Models\Role;
 use App\Models\User;
+use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Permission;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Hash;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\UserResource\Pages;
-use Filament\Tables\Columns\Column;
 use Illuminate\Support\HtmlString;
+use Filament\Tables\Columns\Column;
+use Illuminate\Support\Facades\Hash;
+use App\Filament\Resources\UserResource\Pages;
 
 class UserResource extends Resource
 {
@@ -34,33 +26,41 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Section::make([
-                    TextInput::make('name')
+                Forms\Components\Section::make([
+                    Forms\Components\TextInput::make('name')
                         ->minLength(4)
                         ->required()
                         ->maxLength(32),
-                    TextInput::make('email')
+                    Forms\Components\TextInput::make('email')
                         ->email()
                         ->required()
                         ->unique(ignoreRecord: true)
                         ->maxLength(100),
-                    TextInput::make('password')
+                    Forms\Components\TextInput::make('password')
                         ->password()
-                        ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                        ->dehydrated(fn (?string $state): bool => filled($state))
-                        ->required(fn (string $operation): bool => $operation === 'create')
+                        ->dehydrateStateUsing(
+                            fn (string $state): string => Hash::make($state)
+                        )
+                        ->dehydrated(
+                            fn (?string $state): bool => filled($state)
+                        )
+                        ->required(function (string $operation): bool {
+                            return $operation === 'create';
+                        })
                         ->maxLength(32)
                         ->confirmed(),
-                    TextInput::make('password_confirmation')
+                    Forms\Components\TextInput::make('password_confirmation')
                         ->password()
-                        ->required(fn (string $operation): bool => $operation === 'create')
+                        ->required(function (string $operation): bool {
+                            return $operation === 'create';
+                        })
                         ->maxLength(32),
-                    Select::make('role_ids')
+                    Forms\Components\Select::make('role_ids')
                         ->label('Roles')
                         ->multiple()
                         ->options(Role::pluck('name', '_id'))
                         ->preload(),
-                    Select::make('permission_ids')
+                    Forms\Components\Select::make('permission_ids')
                         ->label('Permissions')
                         ->helperText(
                             new HtmlString(
@@ -82,20 +82,20 @@ class UserResource extends Resource
         );
         return $table
             ->columns([
-                TextColumn::make('name')
+                Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('email')
+                Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                TextColumn::make('roles.name')
+                Tables\Columns\TextColumn::make('roles.name')
                     ->listWithLineBreaks()
                     ->limitList(4)
                     ->toggleable(),
-                TextColumn::make('permissions.name')
+                Tables\Columns\TextColumn::make('permissions.name')
                     ->label('Direct Permissions')
                     ->listWithLineBreaks()
                     ->limitList(4)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('roles.permissions.name')
+                Tables\Columns\TextColumn::make('roles.permissions.name')
                     ->label('Permissions via Roles')
                     ->formatStateUsing(function ($state, Column $column) use (&$via_role) {
                         if ($via_role->index != $column->getRowLoop()->index) {
@@ -110,36 +110,36 @@ class UserResource extends Resource
                     ->listWithLineBreaks()
                     ->limitList(4)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('role_ids')
+                Tables\Filters\SelectFilter::make('role_ids')
                     ->label('Role')
                     ->options(Role::pluck('name', '_id'))
             ])
             ->actions([
-                ActionGroup::make([
-                    EditAction::make(),
-                    DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
                 ])->label('Group Actions'),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -147,5 +147,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
 }
