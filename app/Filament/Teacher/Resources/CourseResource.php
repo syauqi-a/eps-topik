@@ -21,6 +21,11 @@ class CourseResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
+    // Labels
+    protected static ?string $navigationLabel = 'My Courses';
+    protected static ?string $breadcrumb = 'My Courses';
+    protected static ?string $pluralModelLabel = 'My Courses';
+
     public static function form(Form $form): Form
     {
         return $form
