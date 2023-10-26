@@ -52,6 +52,7 @@ class CourseResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->query(fn () => auth()->user()->teacher_has_courses())
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->limit(50)
