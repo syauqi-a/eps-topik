@@ -101,6 +101,7 @@ class CourseResource extends Resource
     {
         return [
             RelationManagers\TeachersRelationManager::class,
+            RelationManagers\StudentsRelationManager::class,
         ];
     }
 
