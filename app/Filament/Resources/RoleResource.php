@@ -121,8 +121,7 @@ class RoleResource extends Resource
                                 $action->success();
                             }
                         });
-                    }
-                ),
+                    }),
             ]);
     }
     

@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use App\Filament\Teacher\Resources\CourseResource\Pages;
+use App\Filament\Teacher\Resources\CourseResource\RelationManagers;
 use MongoDB\Laravel\Eloquent\Model;
 
 class CourseResource extends Resource
@@ -27,6 +28,7 @@ class CourseResource extends Resource
                 Forms\Components\Section::make([
                     Forms\Components\TextInput::make('name')
                         ->required()
+                        ->live(onBlur: true)
                         ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
                             if (($get('slug') ?? '') !== Str::slug($old)) {
                                 return;
@@ -98,7 +100,7 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TeachersRelationManager::class,
         ];
     }
 
