@@ -2,8 +2,6 @@
 
 namespace App\Observers;
 
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\User;
 
 class UserObserver
@@ -24,7 +22,7 @@ class UserObserver
         }
         
         foreach ($role_ids as $id) {
-            $user->assignRole(Role::where('_id', $id)->value('name'));
+            $user->roles()->attach($id);
         }
     }
 
@@ -43,7 +41,7 @@ class UserObserver
         }
 
         foreach ($permission_ids as $id) {
-            $user->givePermissionTo(Permission::where('_id', $id)->value('name'));
+            $user->permissions()->attach($id);
         }
     }
 
