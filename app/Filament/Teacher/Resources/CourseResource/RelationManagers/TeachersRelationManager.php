@@ -50,11 +50,11 @@ class TeachersRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add Teachers')
-                    ->modalHeading('Add Teacher')
+                    ->modalHeading('Add Teachers')
                     ->recordSelect(function () {
                         return Forms\Components\Select::make('_id')
                             ->hiddenLabel()
-                            ->placeholder('Select teacher')
+                            ->placeholder('Select teachers')
                             ->options(function () {
                                 $id = $this->getOwnerRecord()->getAttribute('_id');
                                 $teacher_id = Role::where('name', 'Teacher')->pluck('_id')[0];
@@ -72,7 +72,8 @@ class TeachersRelationManager extends RelationManager
                         $relationship = $table->getRelationship();
                         $relationship->attach($data['_id']);
                     })
-                    ->attachAnother(false),
+                    ->attachAnother(false)
+                    ->closeModalByClickingAway(false),
             ])
             ->actions([
                 //

@@ -40,11 +40,11 @@ class StudentsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->label('Add Students')
-                    ->modalHeading('Add Student')
+                    ->modalHeading('Add Students')
                     ->recordSelect(function () {
                         return Forms\Components\Select::make('_id')
                             ->hiddenLabel()
-                            ->placeholder('Select student')
+                            ->placeholder('Select students')
                             ->options(function () {
                                 $id = $this->getOwnerRecord()->getAttribute('_id');
                                 return User::whereNot('student_course_ids', $id)
@@ -60,7 +60,8 @@ class StudentsRelationManager extends RelationManager
                         $relationship = $table->getRelationship();
                         $relationship->attach($data['_id']);
                     })
-                    ->attachAnother(false),
+                    ->attachAnother(false)
+                    ->closeModalByClickingAway(false),
             ])
             ->actions([
                 //
