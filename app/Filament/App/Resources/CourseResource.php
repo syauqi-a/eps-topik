@@ -7,7 +7,8 @@ use App\Models\Course;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\App\Resources\CourseResource\Pages;
 use App\Filament\Teacher\Resources\CourseResource\RelationManagers;
@@ -17,6 +18,10 @@ class CourseResource extends Resource
     protected static ?string $model = Course::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static int $globalSearchResultsLimit = 15;
 
     public static function form(Form $form): Form
     {
@@ -98,8 +103,8 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\TeachersRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
+            RelationManagers\TeachersRelationManager::class,
         ];
     }
     
@@ -109,5 +114,23 @@ class CourseResource extends Resource
             'index' => Pages\ManageCourses::route('/'),
             'view' => Pages\ViewCourse::route('/{record}'),
         ];
-    }    
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Owner'=> $record->created_by['name'],
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()
+            ->where(function ($query) {
+                $uid = auth()->id();
+                $query->where('is_private', false)
+                      ->orWhere('teacher_ids', $uid)
+                      ->orWhere('student_ids', $uid);
+            });
+    }
 }

@@ -71,6 +71,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->globalSearchKeyBindings(['command+m', 'ctrl+m']);
     }
 }
