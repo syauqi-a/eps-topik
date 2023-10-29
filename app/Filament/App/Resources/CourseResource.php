@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\App\Resources\CourseResource\Pages;
+use App\Filament\Teacher\Resources\CourseResource\RelationManagers;
 
 class CourseResource extends Resource
 {
@@ -92,6 +93,14 @@ class CourseResource extends Resource
                         )->success();
                     }),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\TeachersRelationManager::class,
+            RelationManagers\StudentsRelationManager::class,
+        ];
     }
     
     public static function getPages(): array
