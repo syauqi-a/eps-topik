@@ -5,7 +5,10 @@
         {{ $this->form }}
     @endif
  
-    @if (count($relationManagers = $this->getRelationManagers()))
+    @if (count($relationManagers = $this->getRelationManagers()) and (
+        in_array(Auth::id(), $this->record->getAttribute('student_ids')) or
+        !($this->record->getAttribute('is_private'))
+    ))
         <x-filament-panels::resources.relation-managers
             :active-manager="$activeRelationManager"
             :managers="$relationManagers"
