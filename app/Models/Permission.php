@@ -17,7 +17,7 @@ class Permission extends ModelsPermission
     {
         return $this->belongsToMany(
             config('permission.models.role'),
-            config('permission.models.permission'),
+            null,
             'permission_ids',
             'role_ids'
         );
@@ -31,7 +31,7 @@ class Permission extends ModelsPermission
     {
         return $this->belongsToMany(
             User::class,
-            config('permission.models.permission'),
+            null,
             'permission_ids',
             'user_ids'
         );

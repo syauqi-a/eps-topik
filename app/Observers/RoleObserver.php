@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\Role;
-use App\Models\Permission;
 
 class RoleObserver
 {
@@ -22,7 +21,7 @@ class RoleObserver
         }
 
         foreach ($permission_ids as $id) {
-            $role->givePermissionTo(Permission::where('_id', $id)->value('name'));
+            $role->permissions()->attach($id);
         }
     }
 

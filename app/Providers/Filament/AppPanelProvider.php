@@ -19,21 +19,22 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
-class AdminPanelProvider extends PanelProvider
+class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('app')
+            ->path('')
             ->login()
+            ->registration()
             ->profile()
             ->userMenuItems([
                 MenuItem::make()
-                    ->label('Dashboard')
-                    ->icon('heroicon-o-home')
-                    ->url('/'),
+                    ->label('Admin')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->url('/admin')
+                    ->visible(fn (): bool => auth()->user()->isAdmin()),
                 MenuItem::make()
                     ->label('Teacher')
                     ->icon('heroicon-o-academic-cap')
@@ -41,14 +42,19 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn (): bool => auth()->user()->isTeacher()),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                'danger' => Color::Rose,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'primary' => Color::Fuchsia,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
+            ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
@@ -65,6 +71,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->globalSearchKeyBindings(['command+m', 'ctrl+m']);
     }
 }

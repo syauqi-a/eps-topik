@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +16,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('student/login', [LoginController::class, 'login'])->name('login');
+
+Route::get('/courses/join/{course_id}', [CourseController::class, 'join'])
+    ->middleware(Authenticate::class)
+    ->name('course.join');

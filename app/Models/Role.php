@@ -11,10 +11,10 @@ class Role extends ModelsRole
     use HasFactory;
 
     // Prevent record editing
-    public $prevent_deleting = ['Super Admin', 'Admin'];
+    public $prevent_deleting = ['Super Admin', 'Admin', 'Teacher'];
 
     // Prevent name editing
-    public $prevent_editing = ['Super Admin', 'Admin'];
+    public $prevent_editing = ['Super Admin', 'Admin', 'Teacher'];
 
     /**
      * A role may be given various permissions.
@@ -23,7 +23,7 @@ class Role extends ModelsRole
     {
         return $this->belongsToMany(
             config('permission.models.permission'),
-            config('permission.models.role'),
+            null,
             'role_ids',
             'permission_ids'
         );

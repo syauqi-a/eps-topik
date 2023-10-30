@@ -18,6 +18,9 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    protected $connection = 'mongodb';
+    protected $primaryKey = '_id';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -51,18 +54,6 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
     ];
 
-    public function canAccessPanel(Panel $panel): bool
-    {
-        try {
-            return (
-                $this->hasRole(['Super Admin', 'Admin']) or
-                $this->hasPermissionTo('view panels')
-            );
-        } catch (\Throwable $th) {
-            return false;
-        }
-    }
-
     /**
      * Some user may be given various permissions.
      */
@@ -70,7 +61,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(
             config('permission.models.permission'),
-            User::class,
+            null,
             'user_ids',
             'permission_ids',
         );
@@ -83,9 +74,35 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(
             config('permission.models.role'),
-            User::class,
+            null,
             'user_ids',
             'role_ids',
+        );
+    }
+
+    /**
+     * Some student may take multiple courses.
+     */
+    public function student_has_courses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Course::class,
+            null,
+            'student_ids',
+            'student_course_ids',
+        );
+    }
+
+    /**
+     * Some teacher may has multiple courses.
+     */
+    public function teacher_has_courses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Course::class,
+            null,
+            'teacher_ids',
+            'teacher_course_ids',
         );
     }
 
@@ -115,5 +132,34 @@ class User extends Authenticatable implements FilamentUser
         $this->forgetCachedPermissions();
 
         return $permissions;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(['Super Admin', 'Admin']);
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->hasRole(['Super Admin', 'Teacher']);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        $panel_id = $panel->getId();
+
+        if ($panel_id === 'app') {
+            return true;
+        }
+
+        if ($panel_id === 'admin' && $this->isAdmin()) {
+            return true;
+        }
+
+        if ($panel_id === 'teacher' && $this->isTeacher()) {
+            return true;
+        }
+
+        return false;
     }
 }

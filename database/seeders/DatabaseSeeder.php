@@ -13,20 +13,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::create(['name' => 'Super Admin']);
+        // Admin
         Role::create(['name' => 'Admin']);
-        Role::create(['name' => 'User']);
-
-        User::factory()->create([
-            'name' => 'User',
-            'email' => 'user@gmail.com',
-        ]);
-
-        $admin = User::factory()->create([
+        $role = Role::create(['name' => 'Super Admin']);
+        $user = User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
         ]);
+        $user->assignRole($role);
 
-        $admin->assignRole($role);
+        // Student
+        $role = Role::create(['name' => 'Student']);
+        $user = User::factory()->create([
+            'name' => 'User',
+            'email' => 'user@gmail.com',
+        ]);
+        $user->assignRole($role);
+        
+        // Teacher
+        $role = Role::create(['name' => 'Teacher']);
+        $user = User::factory()->create([
+            'name' => 'Teacher',
+            'email' => 'teacher@gmail.com',
+        ]);
+        $user->assignRole($role);
     }
 }

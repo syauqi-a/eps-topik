@@ -32,7 +32,6 @@ class CreatePermission extends CreateRecord
     {
         $added_amount = 0;
         $added_name = array();
-        $res = '';
 
         $record = new ($this->getModel())($data);
         if ($data['name']) {
