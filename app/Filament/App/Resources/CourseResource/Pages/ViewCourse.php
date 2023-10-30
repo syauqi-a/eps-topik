@@ -113,6 +113,9 @@ class ViewCourse extends ViewRecord
                         ->success()
                         ->title('Copied to clipboard')
                         ->send();
+                })
+                ->hidden(function (Course $record) {
+                    return in_array(auth()->id(), $record->student_ids) == false;
                 }),
         ];
     }
