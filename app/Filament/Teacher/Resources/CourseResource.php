@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Forms\Components\Actions\Action;
 use App\Filament\Teacher\Resources\CourseResource\Pages;
@@ -64,6 +65,22 @@ class CourseResource extends Resource
                                     $key = substr(str_shuffle($chars), 0, 6);
                                     $set('course_key', $key);
                                 }),
+                            Action::make('copy_key')
+                                ->icon('heroicon-m-clipboard-document')
+                                ->extraAttributes([
+                                    'onclick' => new HtmlString(
+                                        '{(() => {' .
+                                            'var key = document.getElementById(\'data.course_key\').value;' .
+                                            'var tempItem = document.createElement(\'input\');' .
+                                            'tempItem.setAttribute(\'display\',\'none\');' .
+                                            'tempItem.setAttribute(\'value\',key);' .
+                                            'document.body.appendChild(tempItem);' .
+                                            'tempItem.select();' .
+                                            'document.execCommand(\'Copy\');' .
+                                            'tempItem.parentElement.removeChild(tempItem);' .
+                                        '})()}'
+                                    ),
+                                ]),
                         ]),
                 ])->columns(2),
             ]);
