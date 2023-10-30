@@ -11,9 +11,10 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
+use MongoDB\Laravel\Eloquent\Model;
+use Filament\Forms\Components\Actions\Action;
 use App\Filament\Teacher\Resources\CourseResource\Pages;
 use App\Filament\Teacher\Resources\CourseResource\RelationManagers;
-use MongoDB\Laravel\Eloquent\Model;
 
 class CourseResource extends Resource
 {
@@ -49,7 +50,21 @@ class CourseResource extends Resource
                         ->label('Private course')
                         ->onIcon('heroicon-m-eye-slash')
                         ->offIcon('heroicon-m-eye')
-                        ->inline(false),
+                        ->inline(false)
+                        ->live(true),
+                    Forms\Components\TextInput::make('course_key')
+                        ->required()
+                        ->length(6)
+                        ->hidden(fn (Get $get) => $get('is_private') == null)
+                        ->suffixActions([
+                            Action::make('generate_key')
+                                ->icon('heroicon-m-sparkles')
+                                ->action(function (Set $set) {
+                                    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                                    $key = substr(str_shuffle($chars), 0, 6);
+                                    $set('course_key', $key);
+                                }),
+                        ]),
                 ])->columns(2),
             ]);
     }
@@ -84,9 +99,13 @@ class CourseResource extends Resource
                         return $state;
                     })
                     ->wrap(),
+                Tables\Columns\ToggleColumn::make('is_private'),
                 Tables\Columns\TextColumn::make('teachers')
+                    ->toggleable()
+                    ->toggledHiddenByDefault()
                     ->getStateUsing(fn (Model $record) => $record->teachers()->count()),
                 Tables\Columns\TextColumn::make('students')
+                    ->toggleable()
                     ->getStateUsing(fn (Model $record) => $record->students()->count()),
             ])
             ->filters([

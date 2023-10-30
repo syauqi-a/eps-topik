@@ -26,6 +26,7 @@ class Course extends Model
         'created_by',
         'teacher_ids',
         'students_ids',
+        'course_key',
     ];
 
     /**
