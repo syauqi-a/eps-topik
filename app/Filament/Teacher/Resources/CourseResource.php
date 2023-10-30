@@ -82,10 +82,19 @@ class CourseResource extends Resource
                                         '})()}'
                                     ),
                                 ])
-                                ->action(function () {
-                                    Notification::make('copy_course_key')
-                                        ->title('Copied to clipboard')
-                                        ->send();
+                                ->action(function (Action $action, Get $get) {
+                                    if ($get('course_key')) {
+                                        Notification::make('copy_course_key')
+                                            ->success()
+                                            ->title('Copied to clipboard')
+                                            ->send();
+                                    } else {
+                                        Notification::make('fail_copy_course_key')
+                                            ->warning()
+                                            ->title('Nothing is copied to the clipboard')
+                                            ->send();
+                                        $action->cancel();
+                                    }
                                 }),
                         ]),
                 ])->columns(2),
@@ -123,7 +132,11 @@ class CourseResource extends Resource
                     })
                     ->wrap(),
                 Tables\Columns\ToggleColumn::make('is_private')
-                    ->tooltip('Private course need to set a course key, otherwise student can\'t join by link.'),
+                    ->tooltip(function (Course $record) {
+                        if (empty($record->course_key)) {
+                            return 'Private course need to set a course key, otherwise student can\'t join by link.';
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('teachers')
                     ->toggleable()
                     ->toggledHiddenByDefault()
@@ -139,6 +152,40 @@ class CourseResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\Action::make('copy_invitation_link')
+                        ->icon('heroicon-m-clipboard-document')
+                        ->extraAttributes(function (Course $record) {
+                            $link = route('course.join', $record['_id']);
+                            if ($record->is_private && $record->course_key) {
+                                $link .= '?course_key='.$record->course_key;
+                            }
+                            return [
+                                'onclick' => new HtmlString(
+                                    '{(() => {' .
+                                        'var tempItem = document.createElement(\'input\');' .
+                                        'tempItem.setAttribute(\'display\',\'none\');' .
+                                        'tempItem.setAttribute(\'value\',\''.$link.'\');' .
+                                        'document.body.appendChild(tempItem);' .
+                                        'tempItem.select();' .
+                                        'document.execCommand(\'Copy\');' .
+                                        'tempItem.parentElement.removeChild(tempItem);' .
+                                    '})()}'
+                                ),
+                            ];
+                        })
+                        ->action(function (Tables\Actions\Action $action, Course $record) {
+                            if ($record->is_private && empty($record->course_key)) {
+                                Notification::make('fail_copy_course_link')
+                                    ->warning()
+                                    ->title('Set a course key first for Private course')
+                                    ->send();
+                                $action->cancel();
+                            } else {
+                                Notification::make('copy_course_link')
+                                    ->title('Copied to clipboard')
+                                    ->send();
+                            }
+                        }),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([

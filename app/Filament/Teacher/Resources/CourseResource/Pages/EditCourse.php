@@ -3,6 +3,7 @@
 namespace App\Filament\Teacher\Resources\CourseResource\Pages;
 
 use Filament\Actions;
+use App\Models\Course;
 use Illuminate\Support\HtmlString;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -19,8 +20,11 @@ class EditCourse extends EditRecord
             Actions\Action::make('course_link')
                 ->icon('heroicon-m-clipboard-document')
                 ->tooltip('Copy course link to clipboard')
-                ->extraAttributes(function () {
-                    $link = route('course.join', $this->data['_id']);
+                ->extraAttributes(function (Course $record) {
+                    $link = route('course.join', $record['_id']);
+                    if ($record->is_private && $record->course_key) {
+                        $link .= '?course_key='.$record->course_key;
+                    }
                     return [
                         'onclick' => new HtmlString(
                             '{(() => {' .
@@ -35,10 +39,19 @@ class EditCourse extends EditRecord
                         ),
                     ];
                 })
-                ->action(function () {
-                    Notification::make('copy_course_link')
-                        ->title('Copied to clipboard')
-                        ->send();
+                ->action(function (Actions\Action $action, Course $record) {
+                    if ($record->is_private && empty($record->course_key)) {
+                        Notification::make('fail_copy_course_link')
+                            ->warning()
+                            ->title('Set a course key first for Private course')
+                            ->send();
+                        $action->cancel();
+                    } else {
+                        Notification::make('copy_course_link')
+                            ->success()
+                            ->title('Copied to clipboard')
+                            ->send();
+                    }
                 }),
         ];
     }

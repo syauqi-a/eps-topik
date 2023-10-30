@@ -8,6 +8,7 @@ use Filament\Actions;
 use App\Models\Course;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Illuminate\Support\HtmlString;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -83,6 +84,35 @@ class ViewCourse extends ViewRecord
                 })
                 ->hidden(function (Course $record) {
                     return in_array(auth()->id(), $record->student_ids) == false;
+                }),
+            Actions\Action::make('course_link')
+                ->color('info')
+                ->icon('heroicon-m-clipboard-document')
+                ->tooltip('Copy course link to clipboard')
+                ->extraAttributes(function (Course $record) {
+                    $link = route('course.join', $record['_id']);
+                    if ($record->is_private && $record->course_key) {
+                        $link .= '?course_key='.$record->course_key;
+                    }
+                    return [
+                        'onclick' => new HtmlString(
+                            '{(() => {' .
+                                'var tempItem = document.createElement(\'input\');' .
+                                'tempItem.setAttribute(\'display\',\'none\');' .
+                                'tempItem.setAttribute(\'value\',\''.$link.'\');' .
+                                'document.body.appendChild(tempItem);' .
+                                'tempItem.select();' .
+                                'document.execCommand(\'Copy\');' .
+                                'tempItem.parentElement.removeChild(tempItem);' .
+                            '})()}'
+                        ),
+                    ];
+                })
+                ->action(function () {
+                    Notification::make('copy_course_link')
+                        ->success()
+                        ->title('Copied to clipboard')
+                        ->send();
                 }),
         ];
     }
