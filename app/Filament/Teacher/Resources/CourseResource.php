@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use MongoDB\Laravel\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Actions\Action;
 use App\Filament\Teacher\Resources\CourseResource\Pages;
 use App\Filament\Teacher\Resources\CourseResource\RelationManagers;
@@ -80,7 +81,12 @@ class CourseResource extends Resource
                                             'tempItem.parentElement.removeChild(tempItem);' .
                                         '})()}'
                                     ),
-                                ]),
+                                ])
+                                ->action(function () {
+                                    Notification::make('copy_course_key')
+                                        ->title('Copied to clipboard')
+                                        ->send();
+                                }),
                         ]),
                 ])->columns(2),
             ]);
