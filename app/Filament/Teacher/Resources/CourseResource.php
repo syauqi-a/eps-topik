@@ -122,7 +122,8 @@ class CourseResource extends Resource
                         return $state;
                     })
                     ->wrap(),
-                Tables\Columns\ToggleColumn::make('is_private'),
+                Tables\Columns\ToggleColumn::make('is_private')
+                    ->tooltip('Private course need to set a course key, otherwise student can\'t join by link.'),
                 Tables\Columns\TextColumn::make('teachers')
                     ->toggleable()
                     ->toggledHiddenByDefault()
