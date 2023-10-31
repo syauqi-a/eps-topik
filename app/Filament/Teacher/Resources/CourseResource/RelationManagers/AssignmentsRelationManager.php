@@ -73,7 +73,8 @@ class AssignmentsRelationManager extends RelationManager
                             $record
                         ),
                         true
-                    ),
+                    )
+                    ->visible(fn (): bool => str_contains(strtolower($this->getPageClass()), 'edit')),
             ])
             ->bulkActions([
                 Tables\Actions\DetachBulkAction::make()
