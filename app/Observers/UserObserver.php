@@ -11,7 +11,7 @@ class UserObserver
         $role_ids = $user->role_ids;
 
         if ($is_create and empty($role_ids)) {
-            $user->assignRole('student');
+            $user->assignRole('Student');
             return;
         }
 
