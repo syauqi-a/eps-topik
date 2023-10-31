@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use App\Models\Assignment;
 use Filament\Tables\Table;
 use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Teacher\Resources\AssignmentResource;
@@ -54,10 +55,15 @@ class AssignmentsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Actions'),
+                Tables\Actions\Action::make('edit')
+                    ->icon('heroicon-m-pencil-square')
+                    ->url(
+                        fn (Assignment $record) => route(
+                            'filament.teacher.resources.assignments.edit',
+                            $record
+                        ),
+                        true
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
