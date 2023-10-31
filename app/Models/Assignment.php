@@ -23,6 +23,7 @@ class Assignment extends Model
         'description',
         'created_by',
         'deadlines',
+        'timezone',
     ];
 
     /**

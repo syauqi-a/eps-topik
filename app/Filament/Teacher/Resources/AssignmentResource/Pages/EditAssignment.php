@@ -17,6 +17,21 @@ class EditAssignment extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $deadlines = $data['deadlines'];
+
+        if ($deadlines['starts'] || $deadlines['ends']) {
+            $data['unlimited'] = false;
+            $data['starts'] = $deadlines['starts'];
+            $data['ends'] = $deadlines['ends'];
+        } else {
+            $data['unlimited'] = true;
+        }
+
+        return $data;
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
