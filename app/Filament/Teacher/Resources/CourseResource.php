@@ -182,6 +182,7 @@ class CourseResource extends Resource
                                 $action->cancel();
                             } else {
                                 Notification::make('copy_course_link')
+                                    ->success()
                                     ->title('Copied to clipboard')
                                     ->send();
                             }

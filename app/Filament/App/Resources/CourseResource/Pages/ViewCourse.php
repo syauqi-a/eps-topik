@@ -90,10 +90,16 @@ class ViewCourse extends ViewRecord
                 ->icon('heroicon-m-clipboard-document')
                 ->tooltip('Copy course link to clipboard')
                 ->extraAttributes(function (Course $record) {
+                    if ($record->is_private && $record->course_key == null) {
+                        return;
+                    }
+
                     $link = route('course.join', $record['_id']);
+
                     if ($record->is_private && $record->course_key) {
                         $link .= '?course_key='.$record->course_key;
                     }
+
                     return [
                         'onclick' => new HtmlString(
                             '{(() => {' .
