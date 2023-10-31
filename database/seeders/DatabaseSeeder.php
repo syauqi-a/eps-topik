@@ -13,28 +13,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin
-        Role::create(['name' => 'Admin']);
-        $role = Role::create(['name' => 'Super Admin']);
-        $user = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-        ]);
-        $user->assignRole($role);
-
         // Student
-        $role = Role::create(['name' => 'Student']);
+        Role::create(['name' => 'Student']);  // UserObserber requires this role to be the default role!
         $user = User::factory()->create([
             'name' => 'User',
             'email' => 'user@gmail.com',
         ]);
-        $user->assignRole($role);
         
         // Teacher
         $role = Role::create(['name' => 'Teacher']);
         $user = User::factory()->create([
             'name' => 'Teacher',
             'email' => 'teacher@gmail.com',
+        ]);
+        $user->assignRole($role);
+
+        // Admin
+        Role::create(['name' => 'Admin']);
+        $role = Role::create(['name' => 'Super Admin']);
+        $user = User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
         ]);
         $user->assignRole($role);
     }
