@@ -69,7 +69,10 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids);
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids);
+                    }
+                    return false;
                 }),
             Actions\Action::make('Leave this course')
                 ->color('danger')
@@ -83,7 +86,10 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids) == false;
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids) == false;
+                    }
+                    return true;
                 }),
             Actions\Action::make('course_link')
                 ->color('info')
@@ -121,7 +127,10 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids) == false;
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids) == false;
+                    }
+                    return true;
                 }),
         ];
     }
