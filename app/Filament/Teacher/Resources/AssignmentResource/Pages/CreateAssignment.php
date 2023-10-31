@@ -16,13 +16,14 @@ class CreateAssignment extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    public static function createDatetime($datetime) {
+    public static function createDatetime($datetime)
+    {
         $date = new Carbon($datetime);
         $mongo_date = new UTCDateTime($date->format('U') * 1000);
         return $mongo_date;
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    public static function customMutateBeforeCreate(array $data): array
     {
         if ($data['unlimited']) {
             $data['deadlines'] = [
@@ -31,17 +32,22 @@ class CreateAssignment extends CreateRecord
             ];
         } else {
             $data['deadlines'] = [
-                'starts' => $this->createDatetime($data['starts']),
-                'ends' => $this->createDatetime($data['ends']),
+                'starts' => static::createDatetime($data['starts']),
+                'ends' => static::createDatetime($data['ends']),
             ];
         }
 
         $data['created_by'] = [
-            '_id' => auth()->id(),
+            'uid' => auth()->id(),
             'name' => auth()->user()->name,
         ];
 
         return $data;
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        return $this->customMutateBeforeCreate($data);
     }
 
     protected function getCreatedNotificationTitle(): ?string

@@ -17,7 +17,7 @@ class CreateCourse extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['created_by'] = [
-            '_id' => auth()->id(),
+            'uid' => auth()->id(),
             'name' => auth()->user()->name
         ];
         return $data;
@@ -26,7 +26,7 @@ class CreateCourse extends CreateRecord
     protected function afterCreate()
     {
         $record = $this->getRecord();
-        $record->teachers()->attach($record->created_by['_id']);
+        $record->teachers()->attach($record->created_by['uid']);
     }
 
     protected function getCreatedNotificationTitle(): ?string
