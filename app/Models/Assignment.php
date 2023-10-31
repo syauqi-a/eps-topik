@@ -46,4 +46,14 @@ class Assignment extends Model
             'course_ids',
         );
     }
+
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            null,
+            'assignment_ids',
+            'student_ids',
+        );
+    }
 }

@@ -28,6 +28,7 @@ class AssignmentObserver
     public function deleted(Assignment $assignment): void
     {
         $assignment->courses()->detach();
+        $assignment->students()->detach();
     }
 
     /**

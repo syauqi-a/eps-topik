@@ -72,6 +72,7 @@ class UserObserver
         $user->permissions()->detach();
         $user->student_has_courses()->detach();
         $user->teacher_has_courses()->detach();
+        $user->assignments()->detach();
     }
 
     /**
