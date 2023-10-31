@@ -22,6 +22,16 @@ class Assignment extends Model
         'slug',
         'description',
         'created_by',
-        'time_span',
+        'deadlines',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'deadlines.starts' => 'datetime',
+        'deadlines.ends' => 'datetime',
     ];
 }
