@@ -4,7 +4,9 @@ namespace App\Filament\Teacher\Resources;
 
 use Carbon\Carbon;
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
+use App\Models\Course;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
@@ -13,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Model;
+use Filament\Notifications\Notification;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages;
 use Tapp\FilamentTimezoneField\Forms\Components\TimezoneSelect;
 use Tapp\FilamentTimezoneField\Tables\Filters\TimezoneSelectFilter;
@@ -88,6 +91,56 @@ class AssignmentResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\Action::make('assign_to_courses')
+                        ->icon('heroicon-m-briefcase')
+                        ->color('success')
+                        ->form([
+                            Forms\Components\Select::make('_id')
+                                ->hiddenLabel()
+                                ->native(false)
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->placeholder('Select a courses')
+                                ->options(function (Assignment $record) {
+                                    $assigned = $record->courses()->pluck('_id');
+                                    $uid = auth()->id();
+                                    return Course::where('created_by.uid', $uid)
+                                        ->whereNotIn('_id', $assigned)
+                                        ->pluck('name', '_id');
+                                }),
+                        ])
+                        ->action(function (Assignment $record, array $data) {
+                            $record->courses()->attach($data['_id']);
+                            Notification::make('success_assign_courses')
+                                ->success()
+                                ->title('Successfully assigned to Courses')
+                                ->send();
+                        }),
+                    Tables\Actions\Action::make('assign_to_students')
+                        ->icon('heroicon-m-user-group')
+                        ->color('primary')
+                        ->form([
+                            Forms\Components\Select::make('_id')
+                                ->hiddenLabel()
+                                ->native(false)
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->placeholder('Select a students')
+                                ->options(function (Assignment $record) {
+                                    $assigned = $record->students()->pluck('_id');
+                                    return User::whereNotIn('_id', $assigned)
+                                        ->pluck('name', '_id');
+                                }),
+                        ])
+                        ->action(function (Assignment $record, array $data) {
+                            $record->students()->attach($data['_id']);
+                            Notification::make('success_assign_students')
+                                ->success()
+                                ->title('Successfully assigned to Students')
+                                ->send();
+                        }),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
