@@ -29,7 +29,7 @@ class CreateCourse extends CreateRecord
         $record->teachers()->attach($record->created_by['_id']);
     }
 
-    protected function getSavedNotificationTitle(): ?string
+    protected function getCreatedNotificationTitle(): ?string
     {
         return 'Course created';
     }

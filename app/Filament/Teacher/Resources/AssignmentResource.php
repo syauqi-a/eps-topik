@@ -48,7 +48,7 @@ class AssignmentResource extends Resource
                         Forms\Components\Toggle::make('unlimited')
                             ->live(),
                         TimezoneSelect::make('timezone')
-                            ->default('UTC')
+                            ->default('Asia/Jakarta')
                             ->native(false)
                             ->searchable()
                             ->live(true)
@@ -82,6 +82,36 @@ class AssignmentResource extends Resource
 
     public static function table(Table $table): Table
     {
+        return static::getCustomTable($table)
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListAssignments::route('/'),
+            'create' => Pages\CreateAssignment::route('/create'),
+            'edit' => Pages\EditAssignment::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getCustomTable(Table $table): Table
+    {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
@@ -98,30 +128,6 @@ class AssignmentResource extends Resource
                     ->default('Asia/Jakarta')
                     ->searchable()
                     ->query(fn (Assignment $assignment) => $assignment),
-            ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                ])->tooltip('Actions'),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-    
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListAssignments::route('/'),
-            'create' => Pages\CreateAssignment::route('/create'),
-            'edit' => Pages\EditAssignment::route('/{record}/edit'),
-        ];
-    }    
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
+use MongoDB\Laravel\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Assignment extends Model
@@ -35,4 +36,14 @@ class Assignment extends Model
         'deadlines.starts' => 'datetime',
         'deadlines.ends' => 'datetime',
     ];
+
+    public function courses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Course::class,
+            null,
+            'assignment_ids',
+            'course_ids',
+        );
+    }
 }

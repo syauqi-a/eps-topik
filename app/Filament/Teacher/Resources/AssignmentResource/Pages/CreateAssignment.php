@@ -2,10 +2,10 @@
 
 namespace App\Filament\Teacher\Resources\AssignmentResource\Pages;
 
+use Carbon\Carbon;
 use MongoDB\BSON\UTCDateTime;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Teacher\Resources\AssignmentResource;
-use Carbon\Carbon;
 
 class CreateAssignment extends CreateRecord
 {
@@ -24,10 +24,17 @@ class CreateAssignment extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['deadlines'] = [
-            'starts' => $data['starts'] ? $this->createDatetime($data['starts']): null,
-            'ends' => $data['ends'] ? $this->createDatetime($data['ends']): null,
-        ];
+        if ($data['unlimited']) {
+            $data['deadlines'] = [
+                'starts' => null,
+                'ends' => null,
+            ];
+        } else {
+            $data['deadlines'] = [
+                'starts' => $this->createDatetime($data['starts']),
+                'ends' => $this->createDatetime($data['ends']),
+            ];
+        }
 
         $data['created_by'] = [
             '_id' => auth()->id(),
@@ -37,7 +44,7 @@ class CreateAssignment extends CreateRecord
         return $data;
     }
 
-    protected function getSavedNotificationTitle(): ?string
+    protected function getCreatedNotificationTitle(): ?string
     {
         return 'Assignment created';
     }
