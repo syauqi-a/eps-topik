@@ -2,21 +2,17 @@
 
 namespace App\Filament\Teacher\Resources\CourseResource\RelationManagers;
 
-use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Assignment;
 use Filament\Tables\Table;
+use Filament\Support\Colors\Color;
 use MongoDB\Laravel\Eloquent\Model;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\AssignmentResource;
 use Filament\Resources\RelationManagers\RelationManager;
-use Tapp\FilamentTimezoneField\Tables\Filters\TimezoneSelectFilter;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages\CreateAssignment;
-use Filament\Support\Colors\Color;
 
 class AssignmentsRelationManager extends RelationManager
 {
@@ -80,7 +76,20 @@ class AssignmentsRelationManager extends RelationManager
                     ),
             ])
             ->bulkActions([
-                Tables\Actions\DetachBulkAction::make(),
+                Tables\Actions\DetachBulkAction::make()
+                    ->label('Unassignment')
+                    ->modalHeading('Remove selected assignments')
+                    ->action(function (
+                        Tables\Actions\DetachBulkAction $action,
+                        Collection $records,
+                        Table $table
+                    ) {
+                        $relationship = $table->getRelationship();
+                        $records->each(function (Model $record) use ($action, $relationship) {
+                            $relationship->detach($record);
+                            $action->success();
+                        });
+                    }),
             ]);
     }
 }
