@@ -16,6 +16,7 @@ use App\Filament\Teacher\Resources\AssignmentResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Tapp\FilamentTimezoneField\Tables\Filters\TimezoneSelectFilter;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages\CreateAssignment;
+use Filament\Support\Colors\Color;
 
 class AssignmentsRelationManager extends RelationManager
 {
@@ -33,26 +34,39 @@ class AssignmentsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                    ->tooltip('Add a new assignment')
                     ->mutateFormDataUsing(function (array $data): array {
-                        if ($data['unlimited']) {
-                            $data['deadlines'] = [
-                                'starts' => null,
-                                'ends' => null,
-                            ];
-                        } else {
-                            $data['deadlines'] = [
-                                'starts' => CreateAssignment::createDatetime($data['starts']),
-                                'ends' => CreateAssignment::createDatetime($data['ends']),
-                            ];
-                        }
-
-                        $data['created_by'] = [
-                            '_id' => auth()->id(),
-                            'name' => auth()->user()->name,
-                        ];
-
-                        return $data;
-                    }),
+                        return CreateAssignment::customMutateBeforeCreate($data);
+                    })
+                    ->closeModalByClickingAway(false),
+                Tables\Actions\AttachAction::make()
+                    ->color(Color::Emerald)
+                    ->label('Add Assignments')
+                    ->tooltip('Add assignments that have been created')
+                    ->modalHeading('Add Assignments')
+                    ->recordSelect(function () {
+                        return Forms\Components\Select::make('_id')
+                            ->hiddenLabel()
+                            ->placeholder('Select assignments')
+                            ->options(function () {
+                                $coures_ids = $this->getOwnerRecord()->getAttribute('_id');
+                                $uid = auth()->id();
+                                return Assignment::whereNot('course_ids', $coures_ids)
+                                    ->where('created_by.uid', $uid)
+                                    ->pluck('name', '_id');
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->noSearchResultsMessage('No assignments found.')
+                            ->native(false);
+                    })
+                    ->action(function (array $data, Table $table) {
+                        $relationship = $table->getRelationship();
+                        $relationship->attach($data['_id']);
+                    })
+                    ->attachAnother(false)
+                    ->closeModalByClickingAway(false)
             ])
             ->actions([
                 Tables\Actions\Action::make('edit')
@@ -66,7 +80,7 @@ class AssignmentsRelationManager extends RelationManager
                     ),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\DetachBulkAction::make(),
             ]);
     }
 }
