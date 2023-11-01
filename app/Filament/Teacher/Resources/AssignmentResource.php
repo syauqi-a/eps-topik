@@ -116,7 +116,8 @@ class AssignmentResource extends Resource
                                 ->success()
                                 ->title('Successfully assigned to Courses')
                                 ->send();
-                        }),
+                        })
+                        ->closeModalByClickingAway(false),
                     Tables\Actions\Action::make('assign_to_students')
                         ->icon('heroicon-m-user-group')
                         ->color('primary')
@@ -140,7 +141,8 @@ class AssignmentResource extends Resource
                                 ->success()
                                 ->title('Successfully assigned to Students')
                                 ->send();
-                        }),
+                        })
+                        ->closeModalByClickingAway(false),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
