@@ -14,7 +14,7 @@ use App\Models\Assignment;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Resources\Resource;
-use MongoDB\Laravel\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Builder;
 use Filament\Notifications\Notification;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages;
 use Tapp\FilamentTimezoneField\Forms\Components\TimezoneSelect;
@@ -170,10 +170,17 @@ class AssignmentResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('deadlines.ends')
-                    ->getStateUsing(function (Model $record, Table $table) {
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('deadlines.ends', $direction);
+                    })
+                    ->formatStateUsing(function (string $state, Table $table) {
+                        if ($state === Carbon::create('9999')->toDateTimeString()) {
+                            return 'Unlimited';
+                        }
+
                         $tz = $table->getLivewire()->getTableFilterState('timezone')['value'];
-                        $dt = $record->deadlines['ends'];
-                        return ($dt) ? new Carbon($dt->toDateTime(), $tz) : 'Unlimited';
+                        $dt = new Carbon($state, $tz);
+                        return $dt->toDateTimeString();
                     }),
             ])
             ->filters([
@@ -182,6 +189,7 @@ class AssignmentResource extends Resource
                     ->default('Asia/Jakarta')
                     ->searchable()
                     ->query(fn (Assignment $assignment) => $assignment),
-            ]);
+            ])
+            ->defaultSort('deadlines.ends', 'asc');
     }
 }
