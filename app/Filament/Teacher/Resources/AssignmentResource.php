@@ -170,7 +170,9 @@ class AssignmentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->description(fn (Assignment $record): string => Str::limit(
+                        ($record->description) ?: '', 40)),
                 Tables\Columns\TextColumn::make('deadlines.ends')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->orderBy('deadlines.ends', $direction);
