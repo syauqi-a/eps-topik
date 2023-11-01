@@ -3,15 +3,11 @@
 namespace App\Filament\App\Resources\AssignmentResource\Pages;
 
 use DateTimeZone;
-use Carbon\Carbon;
-use Filament\Actions;
-use Filament\Forms\Get;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\AssignmentResource;
-use App\Models\Course;
 
 class ViewAssignment extends ViewRecord
 {
