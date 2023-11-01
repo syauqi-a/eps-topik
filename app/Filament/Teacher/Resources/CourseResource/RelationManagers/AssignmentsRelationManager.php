@@ -75,6 +75,12 @@ class AssignmentsRelationManager extends RelationManager
                         true
                     )
                     ->visible(fn (): bool => str_contains(strtolower($this->getPageClass()), 'edit')),
+                Tables\Actions\Action::make('view')
+                    ->icon('heroicon-m-arrow-top-right-on-square')
+                    ->url(fn (Assignment $record) => route(
+                        'filament.app.resources.assignments.view',
+                        $record
+                    )),
             ])
             ->bulkActions([
                 Tables\Actions\DetachBulkAction::make()
