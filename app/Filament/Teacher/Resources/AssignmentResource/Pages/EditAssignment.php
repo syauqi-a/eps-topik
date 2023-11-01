@@ -19,14 +19,10 @@ class EditAssignment extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $deadlines = $data['deadlines'];
-
-        if ($deadlines['starts'] || $deadlines['ends']) {
-            $data['unlimited'] = false;
-            $data['starts'] = $deadlines['starts'];
-            $data['ends'] = $deadlines['ends'];
-        } else {
-            $data['unlimited'] = true;
+        $data['timezone'] ??= 'Asia/Jakarta';
+        if ($data['is_unlimited'] === false) {
+            $data['starts'] = $data['deadlines']['starts'];
+            $data['ends'] = $data['deadlines']['ends'];
         }
 
         return $data;
@@ -40,8 +36,14 @@ class EditAssignment extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data['deadlines'] = [
-            'starts' => $data['starts'] ? CreateAssignment::createDatetime($data['starts']): null,
-            'ends' => $data['ends'] ? CreateAssignment::createDatetime($data['ends']): null,
+            'starts' => CreateAssignment::createDatetime(
+                array_key_exists('starts', $data) ? $data['starts'] : '',
+                $data['is_unlimited']
+            ),
+            'ends' => CreateAssignment::createDatetime(
+                array_key_exists('ends', $data) ? $data['ends'] : '',
+                $data['is_unlimited']
+            ),
         ];
 
         return $data;

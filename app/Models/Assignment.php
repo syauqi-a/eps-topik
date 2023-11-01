@@ -23,6 +23,7 @@ class Assignment extends Model
         'slug',
         'description',
         'created_by',
+        'is_unlimited',
         'deadlines',
         'timezone',
     ];

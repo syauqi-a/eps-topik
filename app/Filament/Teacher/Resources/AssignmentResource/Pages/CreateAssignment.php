@@ -16,26 +16,25 @@ class CreateAssignment extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    public static function createDatetime($datetime)
+    public static function createDatetime($datetime, bool $is_unlimited=false)
     {
-        $date = new Carbon($datetime);
+        $date = ($is_unlimited) ? Carbon::create('9999') : new Carbon($datetime);
         $mongo_date = new UTCDateTime($date->format('U') * 1000);
         return $mongo_date;
     }
 
     public static function customMutateBeforeCreate(array $data): array
     {
-        if ($data['unlimited']) {
-            $data['deadlines'] = [
-                'starts' => null,
-                'ends' => null,
-            ];
-        } else {
-            $data['deadlines'] = [
-                'starts' => static::createDatetime($data['starts']),
-                'ends' => static::createDatetime($data['ends']),
-            ];
-        }
+        $data['deadlines'] = [
+            'starts' => static::createDatetime(
+                array_key_exists('starts', $data) ? $data['starts'] : '',
+                $data['is_unlimited']
+            ),
+            'ends' => static::createDatetime(
+                array_key_exists('ends', $data) ? $data['ends'] : '',
+                $data['is_unlimited']
+            ),
+        ];
 
         $data['created_by'] = [
             'uid' => auth()->id(),

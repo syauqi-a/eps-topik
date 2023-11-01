@@ -48,14 +48,14 @@ class AssignmentResource extends Resource
                         ->columnSpanFull(),
                     Forms\Components\Fieldset::make('Deadlines')
                         ->schema([
-                        Forms\Components\Toggle::make('unlimited')
+                        Forms\Components\Toggle::make('is_unlimited')
                             ->live(),
                         TimezoneSelect::make('timezone')
                             ->default('Asia/Jakarta')
                             ->native(false)
                             ->searchable()
                             ->live(true)
-                            ->hidden(fn (Get $get) => $get('unlimited')),
+                            ->hidden(fn (Get $get) => $get('is_unlimited')),
                         Forms\Components\DateTimePicker::make('starts')
                             ->prefix('Starts')
                             ->hiddenLabel()
@@ -64,7 +64,7 @@ class AssignmentResource extends Resource
                             ->native(false)
                             ->minDate(fn (Get $get) => now($get('timezone')))
                             ->live(true)
-                            ->hidden(fn (Get $get) => $get('unlimited'))
+                            ->hidden(fn (Get $get) => $get('is_unlimited'))
                             ->required(),
                         Forms\Components\DateTimePicker::make('ends')
                             ->prefix('Ends')
@@ -74,7 +74,7 @@ class AssignmentResource extends Resource
                             ->native(false)
                             ->after(fn (Get $get) => $get('starts'))
                             ->minDate(fn (Get $get) => $get('starts'))
-                            ->hidden(fn (Get $get) => $get('unlimited'))
+                            ->hidden(fn (Get $get) => $get('is_unlimited'))
                             ->required(),
                     ])
                         ->columns(2)
