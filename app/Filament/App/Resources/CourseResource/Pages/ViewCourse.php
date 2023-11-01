@@ -38,6 +38,9 @@ class ViewCourse extends ViewRecord
                     Infolists\Components\TextEntry::make('students')
                         ->label('Number of students')
                         ->getStateUsing(fn (Model $record) => $record->students()->count()),
+                    Infolists\Components\TextEntry::make('students')
+                        ->label('Number of assignments')
+                        ->getStateUsing(fn (Model $record) => $record->assignments()->count()),
                 ]),
             ]);
     }
