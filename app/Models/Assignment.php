@@ -36,6 +36,7 @@ class Assignment extends Model
     protected $casts = [
         'deadlines.starts' => 'datetime',
         'deadlines.ends' => 'datetime',
+        'is_unlimited' => 'boolean',
     ];
 
     public function courses(): BelongsToMany
