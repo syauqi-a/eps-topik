@@ -19,7 +19,8 @@ class ViewAssignment extends ViewRecord
             ->schema([
                 Infolists\Components\Section::make([
                     Infolists\Components\TextEntry::make('name'),
-                    Infolists\Components\TextEntry::make('description'),
+                    Infolists\Components\TextEntry::make('description')
+                        ->formatStateUsing(fn ($state) => wordwrap($state, 40, "\n", true)),
                     Infolists\Components\TextEntry::make('is_unlimited')
                         ->label('Deadlines')
                         ->visible(fn ($state) => $state)
