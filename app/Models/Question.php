@@ -25,4 +25,12 @@ class Question extends Model
         'question_image',
         'question_audio',
     ];
+
+    public function multipleChoices(): EmbedsMany
+    {
+        return $this->embedsMany(
+            MultipleChoice::class,
+            relation: 'multiple_choices'
+        );
+    }
 }
