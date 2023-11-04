@@ -24,6 +24,7 @@ class Question extends Model
         'tags',
         'question_image',
         'question_audio',
+        'created_by',
     ];
 
     public function multipleChoices(): EmbedsMany
