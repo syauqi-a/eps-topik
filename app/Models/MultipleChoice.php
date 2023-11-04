@@ -10,6 +10,15 @@ class MultipleChoice extends Model
     use HasFactory;
 
     protected $connection = 'mongodb';
-    protected $collection = 'multiple_choice';
     protected $primaryKey = '_id';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'text',
+        'image',
+    ];
 }
