@@ -4,7 +4,7 @@ namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Relations\EmbedsMany;
+use MongoDB\Laravel\Relations\HasMany;
 
 class Question extends Model
 {
@@ -27,14 +27,6 @@ class Question extends Model
         'created_by',
     ];
 
-    public function multipleChoices(): EmbedsMany
-    {
-        return $this->embedsMany(
-            MultipleChoice::class,
-            relation: 'multiple_choices'
-        );
-    }
-
     public function scopeQuestionTypes(): array
     {
         return [
@@ -55,5 +47,10 @@ class Question extends Model
             '그래프' => '그래프 (grafik)',
             '표지판' => '표지판 (rambu-rambu)',
         ];
+    }
+
+    public function choices(): HasMany
+    {
+        return $this->hasMany(Choice::class);
     }
 }
