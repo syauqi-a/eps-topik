@@ -11,7 +11,6 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\HtmlString;
 
 class QuestionResource extends Resource
 {
@@ -117,7 +116,7 @@ class QuestionResource extends Resource
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
-                    ->formatStateUsing(fn ($state) => new HtmlString($state)),
+                    ->formatStateUsing(fn ($state) => strip_tags($state)),
                 Tables\Columns\TextColumn::make('question_type')
                     ->label('Type')
                     ->badge(),
