@@ -31,10 +31,16 @@ class CreateQuestion extends CreateRecord
         $record = $this->getRecord();
 
         foreach ($data['choices'] as $choice) {
-            $record->choices()->save(new Choice([
-                'text' => $choice['text'],
-                'image' => reset($choice['image']) ?: null,
-            ]));
+            if ($choice['text']) {
+                $record->choices()->save(new Choice([
+                    'text' => $choice['text']
+                ]));
+            } else {
+                $record->choices()->save(new Choice([
+                    'image' => reset($choice['image'])
+                ]));
+            }
+            
         }
     }
 }
