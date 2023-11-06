@@ -21,6 +21,41 @@ class QuestionResource extends Resource
 
     public static function form(Form $form): Form
     {
+        return static::getCustomForm($form);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return static::getCustomTable($table)
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ChoicesRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListQuestions::route('/'),
+            'create' => Pages\CreateQuestion::route('/create'),
+            'edit' => Pages\EditQuestion::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getCustomForm(Form $form): Form
+    {
         return $form
             ->schema([
                 Forms\Components\Section::make([
@@ -74,7 +109,7 @@ class QuestionResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public static function getCustomTable(Table $table): Table
     {
         return $table
             ->query(fn () => Question::where('created_by.uid', auth()->id()))
@@ -84,6 +119,7 @@ class QuestionResource extends Resource
                     ->wrap()
                     ->formatStateUsing(fn ($state) => new HtmlString($state)),
                 Tables\Columns\TextColumn::make('question_type')
+                    ->label('Type')
                     ->badge(),
                 Tables\Columns\TextColumn::make('tags')
                     ->badge(),
@@ -104,31 +140,6 @@ class QuestionResource extends Resource
             ])
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Actions'),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
-    public static function getRelations(): array
-    {
-        return [
-            RelationManagers\ChoicesRelationManager::class,
-        ];
-    }
-    
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListQuestions::route('/'),
-            'create' => Pages\CreateQuestion::route('/create'),
-            'edit' => Pages\EditQuestion::route('/{record}/edit'),
-        ];
-    }    
 }

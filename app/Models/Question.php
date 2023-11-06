@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Relations\HasMany;
+use MongoDB\Laravel\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Question extends Model
 {
@@ -47,6 +48,16 @@ class Question extends Model
             '그래프' => '그래프 (grafik)',
             '표지판' => '표지판 (rambu-rambu)',
         ];
+    }
+
+    public function assignments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Assignment::class,
+            null,
+            'question_ids',
+            'assignment_ids',
+        );
     }
 
     public function choices(): HasMany
