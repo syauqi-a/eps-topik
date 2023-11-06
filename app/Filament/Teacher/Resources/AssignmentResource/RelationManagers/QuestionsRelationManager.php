@@ -2,11 +2,14 @@
 
 namespace App\Filament\Teacher\Resources\AssignmentResource\RelationManagers;
 
+use Filament\Forms;
 use Filament\Tables;
 use App\Models\Choice;
 use App\Models\Question;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Support\Colors\Color;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\QuestionResource;
@@ -48,7 +51,40 @@ class QuestionsRelationManager extends RelationManager
                             }
 
                         }
-                    }),
+                    })
+                    ->tooltip('Add a new assignment')
+                    ->closeModalByClickingAway(false),
+                Tables\Actions\AttachAction::make()
+                    ->color(Color::Emerald)
+                    ->label('Add Questions')
+                    ->tooltip('Add questions that have been created')
+                    ->modalHeading('Add Questions')
+                    ->recordSelect(function () {
+                        return Forms\Components\Select::make('_id')
+                            ->hiddenLabel()
+                            ->placeholder('Select questions')
+                            ->options(function () {
+                                $assignment_ids = $this->getOwnerRecord()->getAttribute('_id');
+                                $uid = auth()->id();
+                                return Question::whereNot('assignment_ids', $assignment_ids)
+                                    ->where('created_by.uid', $uid)
+                                    ->pluck('content', '_id')
+                                    ->map(function ($question) {
+                                        return Str::limit(strip_tags($question), 50);
+                                    });
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->noSearchResultsMessage('No assignments found.')
+                            ->native(false);
+                    })
+                    ->action(function (array $data, Table $table) {
+                        $relationship = $table->getRelationship();
+                        $relationship->attach($data['_id']);
+                    })
+                    ->attachAnother(false)
+                    ->closeModalByClickingAway(false),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
