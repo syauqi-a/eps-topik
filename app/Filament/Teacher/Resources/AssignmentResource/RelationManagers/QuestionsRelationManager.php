@@ -42,11 +42,13 @@ class QuestionsRelationManager extends RelationManager
                         foreach ($data['choices'] as $choice) {
                             if ($choice['text']) {
                                 $record->choices()->save(new Choice([
-                                    'text' => $choice['text']
+                                    'text' => $choice['text'],
+                                    'is_correct' => $choice['is_correct'],
                                 ]));
                             } else {
                                 $record->choices()->save(new Choice([
-                                    'image' => reset($choice['image'])
+                                    'image' => reset($choice['image']),
+                                    'is_correct' => $choice['is_correct'],
                                 ]));
                             }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Teacher\Resources;
 
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
+use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
 use App\Models\Question;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -86,24 +87,18 @@ class QuestionResource extends Resource
                 ])->columns(2),
                 Forms\Components\Section::make([
                     Forms\Components\Repeater::make('choices')
-                        ->schema([
-                            Forms\Components\TextInput::make('text')
-                                ->requiredWithout('image')
-                                ->hidden(fn (Get $get) => $get('image'))
-                                ->live(),
-                            Forms\Components\FileUpload::make('image')
-                                ->image()
-                                ->imageEditor()
-                                ->requiredWithout('text')
-                                ->hidden(fn (Get $get) => $get('text'))
-                                ->live()
-                                // ->disk('s3')
-                                ->directory('images/choices')
-                                ->visibility('public'),
-                        ])
+                        ->schema(ChoicesRelationManager::getChoiceForm())
                         ->grid(2)
                         ->collapsible()
-                        ->itemLabel(fn (array $state): ?string => $state['text'] ?? null),
+                        ->itemLabel(function (array $state): ?string {
+                            if ($state['text']) {
+                                $badge = $state['is_correct'] ? '✔' : '❌';
+                                return $state['text'] . ' ' . $badge;
+                            } else {
+                                return null;
+                            }
+                        })
+                        ->defaultItems(4),
                 ])->hiddenOn('edit'),
             ]);
     }
