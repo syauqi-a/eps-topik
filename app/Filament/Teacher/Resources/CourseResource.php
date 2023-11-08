@@ -3,6 +3,7 @@
 namespace App\Filament\Teacher\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Course;
 use Filament\Forms\Get;
@@ -193,6 +194,31 @@ class CourseResource extends Resource
                                     ->send();
                             }
                         }),
+                    Tables\Actions\Action::make('add_students')
+                        ->icon('heroicon-m-user-group')
+                        ->color('primary')
+                        ->form([
+                            Forms\Components\Select::make('_id')
+                                ->hiddenLabel()
+                                ->native(false)
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->placeholder('Select a students')
+                                ->options(function (Course $record) {
+                                    $added = $record->students()->pluck('_id');
+                                    return User::whereNotIn('_id', $added)
+                                        ->pluck('name', '_id');
+                                }),
+                        ])
+                        ->action(function (Course $record, array $data) {
+                            $record->students()->attach($data['_id']);
+                            Notification::make('success_add_students')
+                                ->success()
+                                ->title('Successfully add Students')
+                                ->send();
+                        })
+                        ->closeModalByClickingAway(false),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
