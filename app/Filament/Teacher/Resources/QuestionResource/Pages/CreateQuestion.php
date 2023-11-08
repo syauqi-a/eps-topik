@@ -3,7 +3,9 @@
 namespace App\Filament\Teacher\Resources\QuestionResource\Pages;
 
 use App\Filament\Teacher\Resources\QuestionResource;
+use App\Models\Assignment;
 use App\Models\Choice;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateQuestion extends CreateRecord
@@ -12,7 +14,12 @@ class CreateQuestion extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return $this->previousUrl ?? static::getResource()::getUrl();
+    }
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Question created';
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -24,7 +31,7 @@ class CreateQuestion extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate(): void
+    protected function afterCreate()
     {
         $data = $this->data;
 
@@ -43,6 +50,28 @@ class CreateQuestion extends CreateRecord
                 ]));
             }
             
+        }
+        if (array_key_exists('assignment_id', $this->data)) {
+            if (Assignment::where('_id', $this->data['assignment_id'])->first()) {
+                $record->assignments()->attach($this->data['assignment_id']);
+                Notification::make('success_assigned')
+                    ->success()
+                    ->title('Successfully assigned question')
+                    ->send();
+            } else {
+                Notification::make('fail_assigned')
+                    ->warning()
+                    ->title('Failed to assign question')
+                    ->body('Assignment ID not found')
+                    ->send();
+            }
+        }
+    }
+
+    protected function afterFill()
+    {
+        if (key_exists('assign_to', $_GET) && $_GET['assign_to']) {
+            $this->data['assignment_id'] = $_GET['assign_to'];
         }
     }
 }

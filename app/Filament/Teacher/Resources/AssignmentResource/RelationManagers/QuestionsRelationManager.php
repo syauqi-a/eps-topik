@@ -4,7 +4,6 @@ namespace App\Filament\Teacher\Resources\AssignmentResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Choice;
 use App\Models\Question;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -14,6 +13,7 @@ use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\QuestionResource;
 use Filament\Resources\RelationManagers\RelationManager;
+use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionsRelationManager extends RelationManager
 {
@@ -31,31 +31,11 @@ class QuestionsRelationManager extends RelationManager
             ->recordTitleAttribute('content')
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->before(function (array $data) {
-                        $data['created_by'] = [
-                            'uid' => auth()->id(),
-                            'name' => auth()->user()->name
-                        ];
-                        return $data;
-                    })
-                    ->after(function (array $data, Question $record) {
-                        foreach ($data['choices'] as $choice) {
-                            if ($choice['text']) {
-                                $record->choices()->save(new Choice([
-                                    'text' => $choice['text'],
-                                    'is_correct' => $choice['is_correct'],
-                                ]));
-                            } else {
-                                $record->choices()->save(new Choice([
-                                    'image' => reset($choice['image']),
-                                    'is_correct' => $choice['is_correct'],
-                                ]));
-                            }
-
-                        }
-                    })
                     ->tooltip('Add a new assignment')
-                    ->closeModalByClickingAway(false),
+                    ->url(
+                        fn () => route('filament.teacher.resources.questions.create') .
+                            '?assign_to=' . $this->getOwnerRecord()->getKey()
+                    ),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
@@ -72,7 +52,9 @@ class QuestionsRelationManager extends RelationManager
                                     ->where('created_by.uid', $uid)
                                     ->pluck('content', '_id')
                                     ->map(function ($question) {
-                                        return Str::limit(strip_tags($question), 50);
+                                        return Str::limit(strip_tags(
+                                            (new Converter())->convert($question)->getContent()
+                                        ), 50);
                                     });
                             })
                             ->multiple()
