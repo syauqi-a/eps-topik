@@ -85,7 +85,7 @@ class AssignmentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return static::getCustomTable($table)
+        return static::getAssignmentTable($table)
             ->query(fn () => Assignment::where('created_by.uid', auth()->id()))
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -166,7 +166,7 @@ class AssignmentResource extends Resource
         ];
     }
 
-    public static function getCustomTable(Table $table): Table
+    public static function getAssignmentTable(Table $table): Table
     {
         return $table
             ->columns([

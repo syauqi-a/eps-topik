@@ -21,12 +21,12 @@ class QuestionResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return static::getCustomForm($form);
+        return static::getQuestionForm($form);
     }
 
     public static function table(Table $table): Table
     {
-        return static::getCustomTable($table)
+        return static::getQuestionTable($table)
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
@@ -54,15 +54,15 @@ class QuestionResource extends Resource
         ];
     }
 
-    public static function getCustomForm(Form $form): Form
+    public static function getQuestionForm(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Section::make([
                     Forms\Components\RichEditor::make('content')
                         ->required()
-                        ->disableToolbarButtons(['attachFiles'])
-                        ->columnSpanFull(),
+                        ->disableToolbarButtons(['attachFiles']),
+                    Forms\Components\Fieldset::make('preview'),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
@@ -103,7 +103,7 @@ class QuestionResource extends Resource
             ]);
     }
 
-    public static function getCustomTable(Table $table): Table
+    public static function getQuestionTable(Table $table): Table
     {
         return $table
             ->query(fn () => Question::where('created_by.uid', auth()->id()))

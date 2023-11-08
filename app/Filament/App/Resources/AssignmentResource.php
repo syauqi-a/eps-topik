@@ -26,7 +26,7 @@ class AssignmentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TeacherAssignmentResource::getCustomTable($table)
+        return TeacherAssignmentResource::getAssignmentTable($table)
             ->query(fn () => Assignment::where('student_ids', auth()->id())
                 ->orWhereIn(
                     'course_ids',

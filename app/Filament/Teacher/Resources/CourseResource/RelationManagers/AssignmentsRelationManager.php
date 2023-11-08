@@ -25,7 +25,7 @@ class AssignmentsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return AssignmentResource::getCustomTable($table)
+        return AssignmentResource::getAssignmentTable($table)
             ->query(fn () => $this->getOwnerRecord()->assignments())
             ->recordTitleAttribute('name')
             ->headerActions([

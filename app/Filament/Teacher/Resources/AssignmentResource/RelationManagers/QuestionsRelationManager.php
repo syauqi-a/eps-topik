@@ -21,12 +21,12 @@ class QuestionsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return QuestionResource::getCustomForm($form);
+        return QuestionResource::getQuestionForm($form);
     }
 
     public function table(Table $table): Table
     {
-        return QuestionResource::getCustomTable($table)
+        return QuestionResource::getQuestionTable($table)
             ->query(fn () => $this->getOwnerRecord()->questions())
             ->recordTitleAttribute('content')
             ->headerActions([
