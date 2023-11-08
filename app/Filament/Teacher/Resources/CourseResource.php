@@ -139,6 +139,10 @@ class CourseResource extends Resource
                             return 'Private course need to set a course key, otherwise student can\'t join by link.';
                         }
                     }),
+                Tables\Columns\TextColumn::make('assignments')
+                    ->toggleable()
+                    ->toggledHiddenByDefault()
+                    ->getStateUsing(fn (Model $record) => $record->assignments()->count()),
                 Tables\Columns\TextColumn::make('teachers')
                     ->toggleable()
                     ->toggledHiddenByDefault()
