@@ -65,18 +65,17 @@ class AssignmentsRelationManager extends RelationManager
                     ->closeModalByClickingAway(false)
             ])
             ->actions([
-                Tables\Actions\Action::make('edit')
-                    ->icon('heroicon-m-pencil-square')
-                    ->url(
-                        fn (Assignment $record) => route(
-                            'filament.teacher.resources.assignments.edit',
-                            $record
-                        ),
-                        true
-                    )
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->tooltip('Edit')
+                    ->url(fn (Assignment $record) => route(
+                        'filament.teacher.resources.assignments.edit',
+                        $record
+                    ))
                     ->visible(fn (): bool => str_contains(strtolower($this->getPageClass()), 'edit')),
-                Tables\Actions\Action::make('view')
-                    ->icon('heroicon-m-arrow-top-right-on-square')
+                Tables\Actions\ViewAction::make()
+                    ->label('')
+                    ->tooltip('View')
                     ->url(fn (Assignment $record) => route(
                         'filament.app.resources.assignments.view',
                         $record

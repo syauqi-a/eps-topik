@@ -71,13 +71,13 @@ class QuestionsRelationManager extends RelationManager
                     ->closeModalByClickingAway(false),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make('ubah')
-                        ->url(fn (Question $record) => route(
-                            'filament.teacher.resources.questions.edit',
-                            $record
-                        ), true),
-                ]),
+                Tables\Actions\EditAction::make()
+                    ->label('')
+                    ->tooltip('Edit')
+                    ->url(fn (Question $record) => route(
+                        'filament.teacher.resources.questions.edit',
+                        $record
+                    )),
             ])
             ->bulkActions([
                 Tables\Actions\DetachBulkAction::make()
