@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('assignments', function (Blueprint $collection) {
             $collection->id();
-            $collection->index('name');
             $collection->timestamps();
         });
     }
