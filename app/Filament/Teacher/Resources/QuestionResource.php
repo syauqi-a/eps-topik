@@ -2,16 +2,19 @@
 
 namespace App\Filament\Teacher\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Livewire\Component as Livewire;
+use Filament\Forms\Get;
+use App\Models\Question;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use App\Forms\Components\PreviewHtml;
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
-use App\Models\Question;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionResource extends Resource
 {
@@ -59,10 +62,13 @@ class QuestionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make([
-                    Forms\Components\RichEditor::make('content')
+                    Forms\Components\MarkdownEditor::make('content')
                         ->required()
-                        ->disableToolbarButtons(['attachFiles']),
-                    Forms\Components\Fieldset::make('preview'),
+                        ->disableToolbarButtons(['attachFiles'])
+                        ->live(debounce: 300)
+                        ->columnSpan(fn (Livewire $livewire) => str_contains($livewire->getName(), 'relation-manager') ? 'full' : 1),
+                    PreviewHtml::make('Preview')
+                        ->hidden(fn (Livewire $livewire) => str_contains($livewire->getName(), 'relation-manager')),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
@@ -111,7 +117,9 @@ class QuestionResource extends Resource
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
-                    ->formatStateUsing(fn ($state) => strip_tags($state)),
+                    ->formatStateUsing(fn ($state) => strip_tags(
+                        (new Converter())->convert($state)->getContent()
+                    )),
                 Tables\Columns\TextColumn::make('question_type')
                     ->label('Type')
                     ->badge(),
