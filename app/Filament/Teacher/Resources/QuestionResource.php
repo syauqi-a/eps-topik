@@ -21,6 +21,8 @@ class QuestionResource extends Resource
     protected static ?string $model = Question::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Teaching';
 
     public static function form(Form $form): Form
     {

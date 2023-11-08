@@ -23,6 +23,8 @@ class CourseResource extends Resource
     protected static ?string $model = Course::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Teaching';
 
     // Labels
     protected static ?string $navigationLabel = 'My Courses';
