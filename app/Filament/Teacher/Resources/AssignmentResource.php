@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Builder;
 use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages;
 use Tapp\FilamentTimezoneField\Forms\Components\TimezoneSelect;
 use Tapp\FilamentTimezoneField\Tables\Filters\TimezoneSelectFilter;
@@ -195,7 +196,37 @@ class AssignmentResource extends Resource
                     ->default('Asia/Jakarta')
                     ->searchable()
                     ->query(fn (Assignment $assignment) => $assignment),
-            ])
-            ->defaultSort('deadlines.ends', 'asc');
+                Tables\Filters\SelectFilter::make('course')
+                    ->options(function (Table $table) {
+                        $user = auth()->user();
+                        $courses = $user->student_has_courses()
+                            ->pluck('name', '_id')
+                            ->toArray();
+
+                        if ($user->isTeacher()) {
+                            $courses = array_merge(
+                                $courses,
+                                $user->teacher_has_courses()
+                                    ->pluck('name', '_id')
+                                    ->toArray()
+                            );
+                        }
+
+                        asort($courses);
+                        return $courses;
+                    })
+                    ->native(false)
+                    ->searchable()
+                    ->query(function (Builder $query, $state) {
+                        if ($state['value']) {
+                            return $query->where(
+                                'course_ids',
+                                $state['value']
+                            );
+                        }
+                        return $query;
+                    }),
+            ], layout: FiltersLayout::AboveContent)
+            ->defaultSort('deadlines.ends');
     }
 }
