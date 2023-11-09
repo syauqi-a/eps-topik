@@ -9,6 +9,7 @@ use Filament\Infolists\Infolist;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\AssignmentResource;
+use Filament\Support\Colors\Color;
 
 class ViewAssignment extends ViewRecord
 {
@@ -85,8 +86,26 @@ class ViewAssignment extends ViewRecord
     {
         return [
             Actions\Action::make('take_exam')
-                ->color('warning')
+                ->color(Color::Rose)
                 ->icon('heroicon-o-rocket-launch')
+                ->hidden(function (Model $record) {
+                    $uid = auth()->id();
+                    $students = $record->getAttribute('student_ids') ?? [];
+
+                    $courses = $record->courses()->get();
+                    foreach ($courses as $course) {
+                        $students = array_merge($students, $course->student_ids);
+                    }
+
+                    if ($students && in_array($uid, $students)) {
+                        return false;
+                    }
+
+                    return true;
+                }),
+            Actions\Action::make('leaderboard')
+                ->color(Color::Yellow)
+                ->icon('heroicon-o-trophy')
                 ->hidden(function (Model $record) {
                     $uid = auth()->id();
                     $students = $record->getAttribute('student_ids') ?? [];
