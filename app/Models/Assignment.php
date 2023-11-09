@@ -68,4 +68,5 @@ class Assignment extends Model
             'question_ids',
         );
     }
+    // [ ] create leaderboard function
 }

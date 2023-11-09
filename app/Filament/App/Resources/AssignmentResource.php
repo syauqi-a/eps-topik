@@ -35,13 +35,9 @@ class AssignmentResource extends Resource
                 ))
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                //
             ]);
     }
 
@@ -51,12 +47,14 @@ class AssignmentResource extends Resource
             QuestionsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ManageAssignments::route('/'),
             'view' => Pages\ViewAssignment::route('/{record}'),
+            'exam' =>Pages\TakeExam::route('/{record}/exam'),
+            // 'leaderboard' =>Pages\Leaderboard::route('/{record}/leaderboard'),
         ];
-    }    
+    }
 }

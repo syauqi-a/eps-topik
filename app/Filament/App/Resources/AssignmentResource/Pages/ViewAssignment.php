@@ -74,6 +74,7 @@ class ViewAssignment extends ViewRecord
                 ])->columns(2),
             ]);
     }
+
     public function getRelationManagers(): array
     {
         if (auth()->user()->isTeacher()) {
@@ -82,6 +83,7 @@ class ViewAssignment extends ViewRecord
 
         return [];
     }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -102,7 +104,11 @@ class ViewAssignment extends ViewRecord
                     }
 
                     return true;
-                }),
+                })
+                ->url(fn (Model $record) => route(
+                    'filament.app.resources.assignments.exam',
+                    $record->getAttribute('_id')
+                )),
             Actions\Action::make('leaderboard')
                 ->color(Color::Yellow)
                 ->icon('heroicon-o-trophy')
