@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\AssignmentResource\Pages;
 use App\Filament\Teacher\Resources\AssignmentResource as TeacherAssignmentResource;
+use App\Filament\Teacher\Resources\AssignmentResource\RelationManagers\QuestionsRelationManager;
 use App\Models\Assignment;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -42,6 +43,13 @@ class AssignmentResource extends Resource
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            QuestionsRelationManager::class,
+        ];
     }
     
     public static function getPages(): array
