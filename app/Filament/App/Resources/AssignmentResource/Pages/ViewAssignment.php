@@ -72,4 +72,12 @@ class ViewAssignment extends ViewRecord
                 ])->columns(2),
             ]);
     }
+    public function getRelationManagers(): array
+    {
+        if (auth()->user()->isTeacher()) {
+            return parent::getRelationManagers();
+        }
+
+        return [];
+    }
 }
