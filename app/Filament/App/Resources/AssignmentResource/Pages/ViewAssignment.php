@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\AssignmentResource\Pages;
 
 use DateTimeZone;
+use Filament\Actions;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use MongoDB\Laravel\Eloquent\Model;
@@ -79,5 +80,28 @@ class ViewAssignment extends ViewRecord
         }
 
         return [];
+    }
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('take_exam')
+                ->color('warning')
+                ->icon('heroicon-o-rocket-launch')
+                ->hidden(function (Model $record) {
+                    $uid = auth()->id();
+                    $students = $record->getAttribute('student_ids') ?? [];
+
+                    $courses = $record->courses()->get();
+                    foreach ($courses as $course) {
+                        $students = array_merge($students, $course->student_ids);
+                    }
+
+                    if ($students && in_array($uid, $students)) {
+                        return false;
+                    }
+
+                    return true;
+                }),
+        ];
     }
 }
