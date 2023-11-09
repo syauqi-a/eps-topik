@@ -26,6 +26,12 @@ class ChoicesRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('text'),
                 Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\SelectColumn::make('type')
+                    ->options([
+                        'text' => 'Text',
+                        'image' => 'Image',
+                    ])
+                    ->selectablePlaceholder(false),
                 Tables\Columns\ToggleColumn::make('is_correct'),
             ])
             ->filters([
