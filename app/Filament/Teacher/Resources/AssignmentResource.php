@@ -21,6 +21,7 @@ use App\Filament\Teacher\Resources\AssignmentResource\Pages;
 use Tapp\FilamentTimezoneField\Forms\Components\TimezoneSelect;
 use Tapp\FilamentTimezoneField\Tables\Filters\TimezoneSelectFilter;
 use App\Filament\Teacher\Resources\AssignmentResource\RelationManagers;
+use App\Filament\Teacher\Resources\CourseResource\RelationManagers\AssignmentsRelationManager;
 
 class AssignmentResource extends Resource
 {
@@ -225,7 +226,8 @@ class AssignmentResource extends Resource
                             );
                         }
                         return $query;
-                    }),
+                    })
+                    ->hiddenOn(AssignmentsRelationManager::class),
             ], layout: FiltersLayout::AboveContent)
             ->defaultSort('deadlines.ends');
     }
