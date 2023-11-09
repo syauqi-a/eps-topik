@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Assignment;
+use App\Models\Choice;
 use App\Models\Course;
 use App\Models\Permission;
 use App\Models\Question;
 use App\Models\Role;
 use App\Models\User;
 use App\Observers\AssignmentObserver;
+use App\Observers\ChoiceObserver;
 use App\Observers\CourseObserver;
 use App\Observers\PermissionObserver;
 use App\Observers\QuestionObserver;
@@ -42,6 +44,7 @@ class EventServiceProvider extends ServiceProvider
         Course::observe(CourseObserver::class);
         Assignment::observe(AssignmentObserver::class);
         Question::observe(QuestionObserver::class);
+        Choice::observe(ChoiceObserver::class);
     }
 
     /**

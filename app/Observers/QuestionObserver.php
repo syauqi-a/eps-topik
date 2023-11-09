@@ -38,9 +38,6 @@ class QuestionObserver
         }
         
         foreach ($question->choices()->get() as $choice) {
-            if ($choice->image) {
-                $disk->delete($choice->image);
-            }
             $choice->delete();
         }
     }
