@@ -19,8 +19,19 @@ class Choice extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'type',
         'text',
         'image',
+        'is_correct',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_correct' => 'bool',
     ];
 
     public function question(): BelongsTo

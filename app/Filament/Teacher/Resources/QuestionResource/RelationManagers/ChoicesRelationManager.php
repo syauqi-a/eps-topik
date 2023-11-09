@@ -32,14 +32,30 @@ class ChoicesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['type'] = $data['is_image'] ? 'image' : 'text';
+
+                        return $data;
+                    })
+                    ->closeModalByClickingAway(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
                     ->tooltip('Edit')
+                    ->mutateRecordDataUsing(function (array $data): array {
+                        $data['is_image'] = $data['type'] == 'image';
+
+                        return $data;
+                    })
                     ->form(static::getChoiceForm())
-                    ->closeModalByClickingAway(),
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['type'] = $data['is_image'] ? 'image' : 'text';
+
+                        return $data;
+                    })
+                    ->closeModalByClickingAway(false),
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete'),
@@ -56,10 +72,10 @@ class ChoicesRelationManager extends RelationManager
         return [
             Forms\Components\Grid::make(['default' => 2])
                 ->schema([
-                    Forms\Components\Toggle::make('type')
+                    Forms\Components\Toggle::make('is_image')
                         ->onIcon('heroicon-m-photo')
                         ->offIcon('heroicon-m-document-text')
-                        ->label(fn (Get $get) => $get('type') ? 'Image': 'Text')
+                        ->label(fn (Get $get) => $get('is_image') ? 'Image': 'Text')
                         ->live(),
                     Forms\Components\Toggle::make('is_correct')
                         ->onIcon('heroicon-m-check')
@@ -68,7 +84,7 @@ class ChoicesRelationManager extends RelationManager
                     Forms\Components\TextInput::make('text')
                         ->hiddenLabel()
                         ->requiredWithout('image')
-                        ->hidden(fn (Get $get) => $get('type') == true)
+                        ->hidden(fn (Get $get) => $get('is_image') == true)
                         ->live()
                         ->columnSpanFull(),
                     Forms\Components\FileUpload::make('image')
@@ -76,7 +92,7 @@ class ChoicesRelationManager extends RelationManager
                         ->image()
                         ->imageEditor()
                         ->requiredWithout('text')
-                        ->hidden(fn (Get $get) => $get('type') == false)
+                        ->hidden(fn (Get $get) => $get('is_image') == false)
                         ->live()
                         // ->disk('s3')
                         ->directory('images/choices')
