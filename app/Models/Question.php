@@ -6,9 +6,11 @@ use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\HasMany;
 use MongoDB\Laravel\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Translatable\HasTranslations;
 
 class Question extends Model
 {
+    use HasTranslations;
     use HasFactory;
 
     protected $connection = 'mongodb';
@@ -27,6 +29,8 @@ class Question extends Model
         'question_audio',
         'created_by',
     ];
+
+    public array $translatable = ['content'];
 
     public function scopeQuestionTypes(): array
     {

@@ -5,9 +5,11 @@ namespace App\Models;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Relations\BelongsTo;
+use Spatie\Translatable\HasTranslations;
 
 class Choice extends Model
 {
+    use HasTranslations;
     use HasFactory;
 
     protected $connection = 'mongodb';
@@ -33,6 +35,8 @@ class Choice extends Model
     protected $casts = [
         'is_correct' => 'bool',
     ];
+    
+    public array $translatable = ['text'];
 
     public function question(): BelongsTo
     {

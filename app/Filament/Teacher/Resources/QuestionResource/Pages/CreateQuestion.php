@@ -5,12 +5,22 @@ namespace App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource;
 use App\Models\Assignment;
 use App\Models\Choice;
+use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateQuestion extends CreateRecord
 {
+    use CreateRecord\Concerns\Translatable;
+
     protected static string $resource = QuestionResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\LocaleSwitcher::make(),
+        ];
+    }
 
     protected function getRedirectUrl(): string
     {
@@ -33,7 +43,8 @@ class CreateQuestion extends CreateRecord
 
     protected function afterCreate()
     {
-        $data = $this->data;
+        $local = array_key_first($this->data);
+        $data = $this->data[$local];
 
         $record = $this->getRecord();
 
@@ -47,12 +58,14 @@ class CreateQuestion extends CreateRecord
             } else {
                 $record->choices()->save(new Choice([
                     'type' => 'text',
-                    'text' => $choice['text'],
+                    'text' => [
+                        $local => $choice['text'],
+                    ],
                     'is_correct' => $choice['is_correct'],
                 ]));
             }
-            
         }
+
         if (array_key_exists('assignment_id', $this->data)) {
             if (Assignment::where('_id', $this->data['assignment_id'])->first()) {
                 $record->assignments()->attach($this->data['assignment_id']);

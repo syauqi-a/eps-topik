@@ -2,15 +2,20 @@
 
 namespace App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 
+use App\Models\Choice;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Actions;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\Concerns\Translatable;
 use Filament\Tables\Table;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class ChoicesRelationManager extends RelationManager
 {
+    use Translatable;
+
     protected static string $relationship = 'choices';
 
     public function form(Form $form): Form
@@ -45,6 +50,7 @@ class ChoicesRelationManager extends RelationManager
                         return $data;
                     })
                     ->closeModalByClickingAway(false),
+                Tables\Actions\LocaleSwitcher::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -78,6 +84,13 @@ class ChoicesRelationManager extends RelationManager
         return [
             Forms\Components\Grid::make(['default' => 2])
                 ->schema([
+                    Forms\Components\Placeholder::make('Korean')
+                        ->content(fn (Choice $record) => $record
+                            ->getTranslation('text', 'ko_KR')
+                        )
+                        ->columnSpanFull()
+                        ->hidden(fn (Choice $record) => $record->getLocale() === 'ko_KR')
+                        ->visibleOn(ChoicesRelationManager::class),
                     Forms\Components\Toggle::make('is_image')
                         ->onIcon('heroicon-m-photo')
                         ->offIcon('heroicon-m-document-text')

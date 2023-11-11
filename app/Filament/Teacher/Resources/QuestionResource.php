@@ -4,6 +4,7 @@ namespace App\Filament\Teacher\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Actions;
 use Livewire\Component as Livewire;
 use Filament\Forms\Get;
 use App\Models\Question;
@@ -14,10 +15,14 @@ use App\Forms\Components\PreviewHtml;
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
+use Filament\Resources\Concerns\Translatable;
+use Illuminate\Support\HtmlString;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = Question::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
@@ -106,7 +111,10 @@ class QuestionResource extends Resource
                                 return null;
                             }
                         })
-                        ->defaultItems(4),
+                        ->defaultItems(4)
+                        ->helperText(new HtmlString(
+                            'To add translations, please go to the <b>edit page</b> after the creation process is successful.'
+                        )),
                 ])->hiddenOn('edit'),
             ]);
     }
