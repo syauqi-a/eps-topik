@@ -20,12 +20,13 @@
     "require": {
         "php": "^8.1",
         "filament/filament": "^3.0",
+        "filament/spatie-laravel-translatable-plugin": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
-        "zoltech/laravel-permission-mongodb": "dev-master",
-        "tapp/filament-timezone-field":"^3.0"
+        "tapp/filament-timezone-field": "^3.0",
+        "zoltech/laravel-permission-mongodb": "dev-master"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
