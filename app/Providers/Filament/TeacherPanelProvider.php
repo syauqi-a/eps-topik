@@ -72,6 +72,7 @@ class TeacherPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugin(SpatieLaravelTranslatablePlugin::make()
-                ->defaultLocales(['ko_KR', 'id']));
+                ->defaultLocales(['ko_KR', 'id']))
+            ->viteTheme('resources/css/filament/teacher/theme.css');
     }
 }
