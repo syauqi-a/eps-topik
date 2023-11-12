@@ -35,6 +35,7 @@ class QuestionResource extends Resource
     public static function table(Table $table): Table
     {
         return static::getQuestionTable($table)
+            ->query(fn () => Question::where('created_by.uid', auth()->id()))
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
@@ -119,7 +120,6 @@ class QuestionResource extends Resource
     public static function getQuestionTable(Table $table): Table
     {
         return $table
-            ->query(fn () => Question::where('created_by.uid', auth()->id()))
             ->columns([
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
