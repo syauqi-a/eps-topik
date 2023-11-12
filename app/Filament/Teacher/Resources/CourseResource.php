@@ -3,6 +3,7 @@
 namespace App\Filament\Teacher\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Course;
 use Filament\Forms\Get;
@@ -23,6 +24,8 @@ class CourseResource extends Resource
     protected static ?string $model = Course::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Teaching';
 
     // Labels
     protected static ?string $navigationLabel = 'My Courses';
@@ -137,6 +140,10 @@ class CourseResource extends Resource
                             return 'Private course need to set a course key, otherwise student can\'t join by link.';
                         }
                     }),
+                Tables\Columns\TextColumn::make('assignments')
+                    ->toggleable()
+                    ->toggledHiddenByDefault()
+                    ->getStateUsing(fn (Model $record) => $record->assignments()->count()),
                 Tables\Columns\TextColumn::make('teachers')
                     ->toggleable()
                     ->toggledHiddenByDefault()
@@ -182,10 +189,36 @@ class CourseResource extends Resource
                                 $action->cancel();
                             } else {
                                 Notification::make('copy_course_link')
+                                    ->success()
                                     ->title('Copied to clipboard')
                                     ->send();
                             }
                         }),
+                    Tables\Actions\Action::make('add_students')
+                        ->icon('heroicon-m-user-group')
+                        ->color('primary')
+                        ->form([
+                            Forms\Components\Select::make('_id')
+                                ->hiddenLabel()
+                                ->native(false)
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->placeholder('Select a students')
+                                ->options(function (Course $record) {
+                                    $added = $record->students()->pluck('_id');
+                                    return User::whereNotIn('_id', $added)
+                                        ->pluck('name', '_id');
+                                }),
+                        ])
+                        ->action(function (Course $record, array $data) {
+                            $record->students()->attach($data['_id']);
+                            Notification::make('success_add_students')
+                                ->success()
+                                ->title('Successfully add Students')
+                                ->send();
+                        })
+                        ->closeModalByClickingAway(false),
                 ])->tooltip('Actions'),
             ])
             ->bulkActions([
@@ -196,6 +229,7 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\AssignmentsRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
             RelationManagers\TeachersRelationManager::class,
         ];

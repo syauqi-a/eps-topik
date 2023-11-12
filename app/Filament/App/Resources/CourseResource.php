@@ -17,7 +17,9 @@ class CourseResource extends Resource
 {
     protected static ?string $model = Course::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Study';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -103,6 +105,7 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\AssignmentsRelationManager::class,
             RelationManagers\StudentsRelationManager::class,
             RelationManagers\TeachersRelationManager::class,
         ];

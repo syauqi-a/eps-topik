@@ -38,6 +38,9 @@ class ViewCourse extends ViewRecord
                     Infolists\Components\TextEntry::make('students')
                         ->label('Number of students')
                         ->getStateUsing(fn (Model $record) => $record->students()->count()),
+                    Infolists\Components\TextEntry::make('students')
+                        ->label('Number of assignments')
+                        ->getStateUsing(fn (Model $record) => $record->assignments()->count()),
                 ]),
             ]);
     }
@@ -69,7 +72,10 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids);
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids);
+                    }
+                    return false;
                 }),
             Actions\Action::make('Leave this course')
                 ->color('danger')
@@ -83,17 +89,26 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids) == false;
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids) == false;
+                    }
+                    return true;
                 }),
             Actions\Action::make('course_link')
                 ->color('info')
                 ->icon('heroicon-m-clipboard-document')
                 ->tooltip('Copy course link to clipboard')
                 ->extraAttributes(function (Course $record) {
+                    if ($record->is_private && $record->course_key == null) {
+                        return;
+                    }
+
                     $link = route('course.join', $record['_id']);
+
                     if ($record->is_private && $record->course_key) {
                         $link .= '?course_key='.$record->course_key;
                     }
+
                     return [
                         'onclick' => new HtmlString(
                             '{(() => {' .
@@ -115,7 +130,10 @@ class ViewCourse extends ViewRecord
                         ->send();
                 })
                 ->hidden(function (Course $record) {
-                    return in_array(auth()->id(), $record->student_ids) == false;
+                    if ($record->student_ids) {
+                        return in_array(auth()->id(), $record->student_ids) == false;
+                    }
+                    return true;
                 }),
         ];
     }

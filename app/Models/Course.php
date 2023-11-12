@@ -57,4 +57,14 @@ class Course extends Model
             'teacher_ids',
         );
     }
+
+    public function assignments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Assignment::class,
+            null,
+            'course_ids',
+            'assignment_ids',
+        );
+    }
 }

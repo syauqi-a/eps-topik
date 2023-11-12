@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $collection) {
             $collection->id();
             $collection->timestamps();
-            $collection->index('name');
         });
     }
 

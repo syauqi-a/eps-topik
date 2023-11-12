@@ -29,6 +29,7 @@ class CourseObserver
     {
         $course->students()->detach();
         $course->teachers()->detach();
+        $course->assignments()->detach();
     }
 
     /**

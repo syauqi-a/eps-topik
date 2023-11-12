@@ -107,6 +107,19 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Some student may has multiple direct assignments.
+     */
+    public function assignments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Assignment::class,
+            null,
+            'student_ids',
+            'assignment_ids',
+        );
+    }
+
+    /**
      * Grant the given permission(s) to some user.
      *
      * @param string|array|Permission $permissions

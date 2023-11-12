@@ -11,7 +11,7 @@ class UserObserver
         $role_ids = $user->role_ids;
 
         if ($is_create and empty($role_ids)) {
-            $user->assignRole('student');
+            $user->assignRole('Student');
             return;
         }
 
@@ -72,6 +72,7 @@ class UserObserver
         $user->permissions()->detach();
         $user->student_has_courses()->detach();
         $user->teacher_has_courses()->detach();
+        $user->assignments()->detach();
     }
 
     /**

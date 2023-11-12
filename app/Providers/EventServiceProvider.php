@@ -2,15 +2,20 @@
 
 namespace App\Providers;
 
+use App\Models\Assignment;
+use App\Models\Choice;
 use App\Models\Course;
 use App\Models\Permission;
+use App\Models\Question;
 use App\Models\Role;
 use App\Models\User;
+use App\Observers\AssignmentObserver;
+use App\Observers\ChoiceObserver;
 use App\Observers\CourseObserver;
 use App\Observers\PermissionObserver;
+use App\Observers\QuestionObserver;
 use App\Observers\RoleObserver;
 use App\Observers\UserObserver;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -37,6 +42,9 @@ class EventServiceProvider extends ServiceProvider
         Role::observe(RoleObserver::class);
         Permission::observe(PermissionObserver::class);
         Course::observe(CourseObserver::class);
+        Assignment::observe(AssignmentObserver::class);
+        Question::observe(QuestionObserver::class);
+        Choice::observe(ChoiceObserver::class);
     }
 
     /**
