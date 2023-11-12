@@ -61,7 +61,7 @@ class ViewAssignment extends ViewRecord
                                     Infolists\Components\Actions\Action::make('view')
                                         ->label('View course')
                                         ->icon('heroicon-o-document-magnifying-glass')
-                                        ->iconSize('l')
+                                        ->iconSize('lg')
                                         ->url(fn (Model $record) => route(
                                             'filament.app.resources.courses.view',
                                             $record->getAttribute('_id')
