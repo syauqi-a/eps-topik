@@ -13,10 +13,13 @@ use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\QuestionResource;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\RelationManagers\Concerns\Translatable;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionsRelationManager extends RelationManager
 {
+    use Translatable;
+
     protected static string $relationship = 'questions';
 
     public function form(Form $form): Form
@@ -30,6 +33,7 @@ class QuestionsRelationManager extends RelationManager
             ->query(fn () => $this->getOwnerRecord()->questions())
             ->recordTitleAttribute('content')
             ->headerActions([
+                Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
                     ->tooltip('Add a new assignment'),
                 Tables\Actions\AttachAction::make()

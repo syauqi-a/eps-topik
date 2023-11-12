@@ -42,6 +42,7 @@ class ChoicesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
+                Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['type'] = $data['is_image'] ? 'image' : 'text';
@@ -49,7 +50,6 @@ class ChoicesRelationManager extends RelationManager
                         return $data;
                     })
                     ->closeModalByClickingAway(false),
-                Tables\Actions\LocaleSwitcher::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
