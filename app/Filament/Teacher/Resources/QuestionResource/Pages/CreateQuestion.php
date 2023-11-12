@@ -32,13 +32,13 @@ class CreateQuestion extends CreateRecord
         return 'Question created';
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    public static function getImagePath(string $content): ?array
     {
-        $data['created_by'] = [
-            'uid' => auth()->id(),
-            'name' => auth()->user()->name
-        ];
-        return $data;
+        $pattern = '(images\/questions.{38}(xbm|tif|jfif|ico|tiff|gif|svg|webp|svgz|jpg|jpeg|png|bmp|pjp|apng|pjpeg|avif))';
+        if (preg_match_all($pattern, $content, $matches)) {
+            return $matches[0];
+        }
+        return null;
     }
 
     protected function afterCreate()
@@ -47,6 +47,14 @@ class CreateQuestion extends CreateRecord
         $data = $this->data[$local];
 
         $record = $this->getRecord();
+
+        $record->update([
+            'question_images' => static::getImagePath($data['content']),
+            'created_by' => [
+                'uid' => auth()->id(),
+                'name' => auth()->user()->name
+            ]
+        ]);
 
         foreach ($data['choices'] as $choice) {
             if ($choice['is_image']) {

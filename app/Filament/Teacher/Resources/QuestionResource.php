@@ -4,18 +4,16 @@ namespace App\Filament\Teacher\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Actions;
-use Livewire\Component as Livewire;
 use Filament\Forms\Get;
 use App\Models\Question;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use App\Forms\Components\PreviewHtml;
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
 use Filament\Resources\Concerns\Translatable;
+use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\HtmlString;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
@@ -69,13 +67,18 @@ class QuestionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make([
-                    Forms\Components\MarkdownEditor::make('content')
-                        ->required()
-                        ->disableToolbarButtons(['attachFiles'])
-                        ->live(debounce: 300)
-                        ->columnSpan(fn (Livewire $livewire) => str_contains($livewire->getName(), 'relation-manager') ? 'full' : 1),
-                    PreviewHtml::make('Preview')
-                        ->hidden(fn (Livewire $livewire) => str_contains($livewire->getName(), 'relation-manager')),
+                    TiptapEditor::make('content')
+                        ->columnSpanFull()
+                        ->extraInputAttributes(['style' => 'min-height: 12rem;'])
+                        ->tools([
+                            'heading', 'bullet-list', 'ordered-list', 'checked-list', 'blockquote', 'hr', '|',
+                            'bold', 'italic', 'strike', 'underline', 'superscript', 'subscript', 'lead', 'small', 'color', 'highlight', 'align-left', 'align-center', 'align-right', '|',
+                            'link', 'media', 'table', 'grid-builder', 'details', '|', 'source',
+                        ])
+                        ->floatingMenuTools(['media', 'table'])
+                        ->acceptedFileTypes(['image/*'])
+                        // ->disk('s3')
+                        ->directory('images/questions'),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
@@ -84,12 +87,6 @@ class QuestionResource extends Resource
                     Forms\Components\TagsInput::make('tags')
                         ->suggestions(Question::tags())
                         ->required(),
-                    Forms\Components\FileUpload::make('question_image')
-                        ->image()
-                        ->imageEditor()
-                        // ->disk('s3')
-                        ->directory('images/questions')
-                        ->visibility('public'),
                     Forms\Components\FileUpload::make('question_audio')
                         ->acceptedFileTypes(['audio/*'])
                         // ->disk('s3')
@@ -135,18 +132,13 @@ class QuestionResource extends Resource
                     ->badge(),
                 Tables\Columns\TextColumn::make('tags')
                     ->badge(),
-                Tables\Columns\TextColumn::make('question_image')
-                    ->label('Image')
+                Tables\Columns\IconColumn::make('images')
+                    ->getStateUsing(fn (Question $record) => $record->question_images != null)
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
-                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
-                    ->badge()
-                    ->default(false)
                     ->color(fn ($state) => $state ? 'success' : 'danger'),
-                Tables\Columns\TextColumn::make('question_audio')
+                Tables\Columns\IconColumn::make('question_audio')
                     ->label('Audio')
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
-                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
-                    ->badge()
                     ->default(false)
                     ->color(fn ($state) => $state ? 'success' : 'danger'),
             ])

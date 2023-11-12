@@ -31,11 +31,7 @@ class QuestionsRelationManager extends RelationManager
             ->recordTitleAttribute('content')
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->tooltip('Add a new assignment')
-                    ->url(
-                        fn () => route('filament.teacher.resources.questions.create') .
-                            '?assign_to=' . $this->getOwnerRecord()->getKey()
-                    ),
+                    ->tooltip('Add a new assignment'),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
@@ -50,11 +46,18 @@ class QuestionsRelationManager extends RelationManager
                                 $uid = auth()->id();
                                 return Question::whereNot('assignment_ids', $assignment_ids)
                                     ->where('created_by.uid', $uid)
-                                    ->pluck('content', '_id')
-                                    ->map(function ($question) {
-                                        return Str::limit(strip_tags(
-                                            (new Converter())->convert($question)->getContent()
-                                        ), 50);
+                                    ->get()
+                                    ->mapWithKeys(function ($question) {
+                                        $raw = json_decode(
+                                            $question->getAttributes()['content'],
+                                            true
+                                        );
+
+                                        return [
+                                            $question['_id'] => Str::limit(strip_tags(
+                                                (new Converter())->convert($raw['ko_KR'])->getContent()
+                                            ), 50)
+                                        ];
                                     });
                             })
                             ->multiple()

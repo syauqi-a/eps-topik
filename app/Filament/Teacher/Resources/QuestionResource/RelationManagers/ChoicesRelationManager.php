@@ -5,7 +5,6 @@ namespace App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Models\Choice;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\Concerns\Translatable;
@@ -88,8 +87,13 @@ class ChoicesRelationManager extends RelationManager
                         ->content(fn (Choice $record) => $record
                             ->getTranslation('text', 'ko_KR')
                         )
+                        ->hidden(function ($record) {
+                            if ($record === null) {
+                                return true;
+                            }
+                            return $record->getLocale() === 'ko_KR';
+                        })
                         ->columnSpanFull()
-                        ->hidden(fn (Choice $record) => $record->getLocale() === 'ko_KR')
                         ->visibleOn(ChoicesRelationManager::class),
                     Forms\Components\Toggle::make('is_image')
                         ->onIcon('heroicon-m-photo')
@@ -102,7 +106,6 @@ class ChoicesRelationManager extends RelationManager
                         ->live(),
                     Forms\Components\TextInput::make('text')
                         ->hiddenLabel()
-                        ->requiredWithout('image')
                         ->hidden(fn (Get $get) => $get('is_image') == true)
                         ->live()
                         ->columnSpanFull(),
@@ -110,7 +113,6 @@ class ChoicesRelationManager extends RelationManager
                         ->hiddenLabel()
                         ->image()
                         ->imageEditor()
-                        ->requiredWithout('text')
                         ->hidden(fn (Get $get) => $get('is_image') == false)
                         ->live()
                         // ->disk('s3')

@@ -25,7 +25,7 @@ class Question extends Model
         'content',
         'question_type',
         'tags',
-        'question_image',
+        'question_images',
         'question_audio',
         'created_by',
     ];

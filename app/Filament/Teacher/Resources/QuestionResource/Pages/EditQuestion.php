@@ -20,6 +20,18 @@ class EditQuestion extends EditRecord
         ];
     }
 
+    protected function afterSave()
+    {
+        $record = $this->getRecord();
+        $content = $this->data['ko_KR']['content'];
+
+        $record->update([
+            'question_images' => CreateQuestion::getImagePath($content),
+        ]);
+
+        return $record;
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->previousUrl ?? static::getResource()::getUrl();

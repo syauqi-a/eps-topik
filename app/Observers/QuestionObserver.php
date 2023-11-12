@@ -29,8 +29,8 @@ class QuestionObserver
     public function deleted(Question $question)
     {
         $disk = Storage::disk('public');
-        if ($question->question_image) {
-            $disk->delete($question->question_image);
+        if ($question->question_images) {
+            $disk->delete($question->question_images);
         }
 
         if ($question->question_audio) {
