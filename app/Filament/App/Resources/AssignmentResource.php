@@ -16,6 +16,13 @@ class AssignmentResource extends Resource
     protected static ?string $model = Assignment::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Study';
+
+    // Labels
+    protected static ?string $navigationLabel = 'My Assignments';
+    protected static ?string $breadcrumb = 'My Assignments';
+    protected static ?string $pluralModelLabel = 'My Assignments';
 
     public static function form(Form $form): Form
     {
