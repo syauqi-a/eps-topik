@@ -103,7 +103,13 @@ class QuestionsRelationManager extends RelationManager
 
     public function isReadOnly(): bool
     {
-        $courses = $this->getOwnerRecord()->courses()->pluck('_id')->toArray();;
+        $record = $this->getOwnerRecord();
+
+        if ($record->created_by['uid'] === auth()->id()) {
+            return false;
+        }
+
+        $courses = $record->courses()->pluck('_id')->toArray();;
         $my_courses = auth()->user()->teacher_has_courses()->pluck('_id')->toArray();;
 
         if (empty(array_intersect($courses, $my_courses))) {
