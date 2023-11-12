@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Builder;
 use App\Filament\Resources\PermissionResource\Pages;
+use App\Tables\Columns\NumberColumn;
 
 class PermissionResource extends Resource
 {
@@ -81,8 +82,7 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('no')
-                    ->rowIndex(),
+                NumberColumn::make(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')

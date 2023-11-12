@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Notifications\Notification;
 use App\Filament\Resources\RoleResource\Pages;
+use App\Tables\Columns\NumberColumn;
 
 class RoleResource extends Resource
 {
@@ -58,8 +59,7 @@ class RoleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('no')
-                    ->rowIndex(),
+                NumberColumn::make(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('permissions.name')

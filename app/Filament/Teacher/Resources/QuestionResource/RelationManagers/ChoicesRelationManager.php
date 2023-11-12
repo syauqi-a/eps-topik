@@ -3,6 +3,7 @@
 namespace App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 
 use App\Models\Choice;
+use App\Tables\Columns\NumberColumn;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -28,15 +29,20 @@ class ChoicesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('text')
             ->columns([
-                Tables\Columns\TextColumn::make('text'),
-                Tables\Columns\ImageColumn::make('image'),
+                NumberColumn::make(),
+                Tables\Columns\TextColumn::make('text')
+                    ->wrap()
+                    ->toggleable(),
+                Tables\Columns\ImageColumn::make('image')
+                    ->toggleable(),
                 Tables\Columns\SelectColumn::make('type')
                     ->options([
                         'text' => 'Text',
                         'image' => 'Image',
                     ])
                     ->selectablePlaceholder(false),
-                Tables\Columns\ToggleColumn::make('is_correct'),
+                Tables\Columns\ToggleColumn::make('is_correct')
+                    ->label('Correct'),
             ])
             ->filters([
                 //

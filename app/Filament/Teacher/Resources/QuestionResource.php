@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
+use App\Tables\Columns\NumberColumn;
 use Filament\Resources\Concerns\Translatable;
 use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\HtmlString;
@@ -121,6 +122,7 @@ class QuestionResource extends Resource
     {
         return $table
             ->columns([
+                NumberColumn::make(),
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
