@@ -28,6 +28,7 @@ class QuestionObserver
      */
     public function deleted(Question $question)
     {
+        $question->assignments()->detach();
         $disk = Storage::disk('public');
         if ($question->question_images) {
             $disk->delete($question->question_images);
