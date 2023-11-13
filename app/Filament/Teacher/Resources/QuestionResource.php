@@ -133,7 +133,15 @@ class QuestionResource extends Resource
                     ->wrap()
                     ->formatStateUsing(fn ($state) => strip_tags(
                         (new Converter())->convert($state)->getContent()
-                    )),
+                    ))
+                    ->searchable(query: function (Builder $query, string $search, $livewire) {
+                        $encoded = json_encode($search);
+                        $encoded = substr_replace(
+                            substr_replace($encoded, '%', 0, 1)  // replace first char
+                            , '%', -1);  // replace last char
+
+                        return $query->where('content', 'like', $encoded);
+                    }),
                 Tables\Columns\TextColumn::make('question_type')
                     ->label('Type')
                     ->badge()
