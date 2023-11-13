@@ -88,7 +88,10 @@ class QuestionResource extends Resource
                         ->live(),
                     Forms\Components\TagsInput::make('tags')
                         ->suggestions(Question::tags())
-                        ->required(),
+                        ->required()
+                        ->helperText(new HtmlString(
+                            '<b>Format</b>: <code>tag name</code> <b>or</r> <code>tag name (translation)</code>'
+                        )),
                     Forms\Components\FileUpload::make('question_audio')
                         ->acceptedFileTypes(['audio/*'])
                         // ->disk('s3')
@@ -131,8 +134,25 @@ class QuestionResource extends Resource
                     )),
                 Tables\Columns\TextColumn::make('question_type')
                     ->label('Type')
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(function ($state, $livewire) {
+                        if ($livewire->activeLocale === 'ko_KR') {
+                            return $state;
+                        }
+
+                        return $state === '듣기' ? 'Mendengar' : 'Menulis';
+                    }),
                 Tables\Columns\TextColumn::make('tags')
+                    ->formatStateUsing(function ($state, $livewire) {
+                        $pattern = '/(\S+)(?: \((.*)\)|)/';
+                        preg_match($pattern, $state, $matches);
+
+                        if (count($matches) == 2 || $livewire->activeLocale === 'ko_KR') {
+                            return $matches[1];
+                        }
+
+                        return $matches[2];
+                    })
                     ->badge(),
                 Tables\Columns\IconColumn::make('images')
                     ->getStateUsing(fn (Question $record) => $record->question_images != null)
