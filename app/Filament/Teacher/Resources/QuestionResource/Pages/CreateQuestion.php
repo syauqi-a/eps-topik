@@ -34,7 +34,7 @@ class CreateQuestion extends CreateRecord
 
     public static function getImagePath(string $content): ?array
     {
-        $pattern = '(images\/questions.{38}(xbm|tif|jfif|ico|tiff|gif|svg|webp|svgz|jpg|jpeg|png|bmp|pjp|apng|pjpeg|avif))';
+        $pattern = '/(images\/questions.{38}(xbm|tif|jfif|ico|tiff|gif|svg|webp|svgz|jpg|jpeg|png|bmp|pjp|apng|pjpeg|avif))/';
         if (preg_match_all($pattern, $content, $matches)) {
             return $matches[0];
         }
