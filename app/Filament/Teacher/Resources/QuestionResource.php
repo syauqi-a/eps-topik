@@ -184,7 +184,8 @@ class QuestionResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data) {
                         if ($data['value'] === '0') {
-                            return $query->where('count_correct_answers', null);
+                            return $query->where('count_correct_answers', null)
+                                ->orWhere('count_correct_answers', 0);
                         }
 
                         if ($data['value'] === '1') {
