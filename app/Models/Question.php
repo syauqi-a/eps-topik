@@ -28,6 +28,7 @@ class Question extends Model
         'question_images',
         'question_audio',
         'created_by',
+        'count_correct_answers',
     ];
 
     public array $translatable = ['content'];

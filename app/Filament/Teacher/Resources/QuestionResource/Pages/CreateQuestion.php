@@ -51,15 +51,7 @@ class CreateQuestion extends CreateRecord
 
     public static function handlingAfterCreation(Question $record, array $choices): void
     {
-        $record->update([
-            'question_images' => static::getImagePath(
-                $record->getTranslation('content', 'ko_KR')
-            ),
-            'created_by' => [
-                'uid' => auth()->id(),
-                'name' => auth()->user()->name
-            ]
-        ]);
+        $count_correct_answers = 0;
 
         foreach ($choices as $choice) {
             if ($choice['is_image']) {
@@ -77,6 +69,19 @@ class CreateQuestion extends CreateRecord
                     'is_correct' => $choice['is_correct'],
                 ]));
             }
+
+            $count_correct_answers += $choice['is_correct'] ? 1 : 0;
         }
+
+        $record->update([
+            'question_images' => static::getImagePath(
+                $record->getTranslation('content', 'ko_KR')
+            ),
+            'created_by' => [
+                'uid' => auth()->id(),
+                'name' => auth()->user()->name
+            ],
+            'count_correct_answers' => $count_correct_answers,
+        ]);
     }
 }

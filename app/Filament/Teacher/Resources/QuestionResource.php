@@ -174,6 +174,35 @@ class QuestionResource extends Resource
                         true: fn (Builder $query) => $query->where('content', 'like', '%"id":"<p>_%<\/p>%'),
                         false:fn (Builder $query) => $query->whereNot('content', 'like', '%"id":"<p>_%<\/p>%'),
                     ),
-            ], layout: FiltersLayout::AboveContentCollapsible);
+                Tables\Filters\SelectFilter::make('has_correct_answer')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->options([
+                        'No',
+                        'Yes',
+                        'More than 1'
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if ($data['value'] === '0') {
+                            return $query->where('count_correct_answers', null);
+                        }
+
+                        if ($data['value'] === '1') {
+                            return $query->where('count_correct_answers', '>', 0);
+                        }
+
+                        if ($data['value'] === '2') {
+                            return $query->where('count_correct_answers', '>', 1);
+                        }
+
+                        return $query;
+                    })
+            ], layout: FiltersLayout::AboveContentCollapsible)
+            ->filtersTriggerAction(
+                fn (Tables\Actions\Action $action) => $action
+                    ->button()
+                    ->label('Filters'),
+            )
+            ->defaultPaginationPageOption(25);
     }
 }

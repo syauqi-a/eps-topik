@@ -27,6 +27,8 @@ class EditQuestion extends EditRecord
 
         $record->update([
             'question_images' => CreateQuestion::getImagePath($content),
+            'count_correct_answers' => $record->choices()
+                ->where('is_correct', true)->count(),
         ]);
 
         return $record;
