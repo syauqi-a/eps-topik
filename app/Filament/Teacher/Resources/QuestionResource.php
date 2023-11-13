@@ -2,6 +2,7 @@
 
 namespace App\Filament\Teacher\Resources;
 
+use Closure;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
@@ -9,16 +10,17 @@ use App\Models\Question;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
+use App\Tables\Columns\NumberColumn;
+use MongoDB\Laravel\Eloquent\Builder;
+use FilamentTiptapEditor\TiptapEditor;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Resources\Concerns\Translatable;
 use App\Filament\Teacher\Resources\QuestionResource\Pages;
+use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
-use App\Tables\Columns\NumberColumn;
-use Filament\Resources\Concerns\Translatable;
-use Filament\Tables\Enums\FiltersLayout;
-use FilamentTiptapEditor\TiptapEditor;
-use Illuminate\Support\HtmlString;
-use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
-use MongoDB\Laravel\Eloquent\Builder;
+use Illuminate\Validation\Rules\Unique;
 
 class QuestionResource extends Resource
 {
@@ -82,7 +84,24 @@ class QuestionResource extends Resource
                         ->floatingMenuTools(['media', 'table'])
                         ->acceptedFileTypes(['image/*'])
                         // ->disk('s3')
-                        ->directory('images/questions'),
+                        ->directory('images/questions')
+                        ->requiredIf('question_type', '읽기')
+                        ->rules([
+                            function () {
+                                return function (string $attribute, $value, Closure $fail) {
+                                    if ($attribute != 'data.ko_KR.content') {
+                                        return;
+                                    }
+
+                                    $found = Question::where('content', 'like', encode_string($value))
+                                        ->count();
+
+                                    if ($found) {
+                                        $fail('A question with that content was created. Unique content is required.');
+                                    }
+                                };
+                            },
+                        ], fn (string $operation) => $operation === 'create'),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
