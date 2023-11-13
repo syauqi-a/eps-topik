@@ -190,6 +190,11 @@ class AssignmentResource extends Resource
                         $dt = new Carbon($state, $tz);
                         return $dt->toDateTimeString();
                     }),
+                Tables\Columns\TextColumn::make('questions')
+                    ->formatStateUsing(fn (Assignment $record) => $record
+                        ->questions()
+                        ->count()
+                    )
             ])
             ->filters([
                 TimezoneSelectFilter::make('timezone')
