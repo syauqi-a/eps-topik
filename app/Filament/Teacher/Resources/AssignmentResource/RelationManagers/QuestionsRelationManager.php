@@ -35,7 +35,8 @@ class QuestionsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
-                    ->tooltip('Add a new assignment'),
+                    ->tooltip('Add a new assignment')
+                    ->closeModalByClickingAway(false),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
