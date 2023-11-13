@@ -90,7 +90,7 @@ class QuestionResource extends Resource
                         ->suggestions(Question::tags())
                         ->required()
                         ->helperText(new HtmlString(
-                            '<b>Format</b>: <code>tag name</code> <b>or</r> <code>tag name (translation)</code>'
+                            '<b>Format</b>: <code>tag name</code> <b>or</b> <code>tag name (translation)</code>'
                         )),
                     Forms\Components\FileUpload::make('question_audio')
                         ->acceptedFileTypes(['audio/*'])
