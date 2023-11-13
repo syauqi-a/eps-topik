@@ -3,10 +3,9 @@
 namespace App\Filament\Teacher\Resources\QuestionResource\Pages;
 
 use App\Filament\Teacher\Resources\QuestionResource;
-use App\Models\Assignment;
 use App\Models\Choice;
+use App\Models\Question;
 use Filament\Actions;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateQuestion extends CreateRecord
@@ -43,20 +42,26 @@ class CreateQuestion extends CreateRecord
 
     protected function afterCreate()
     {
-        $local = array_key_first($this->data);
-        $data = $this->data[$local];
-
+        $data = $this->data['ko_KR'];
         $record = $this->getRecord();
+        $choices = $data['choices'];
 
+        static::handlingAfterCreation($record, $choices);
+    }
+
+    public static function handlingAfterCreation(Question $record, array $choices): void
+    {
         $record->update([
-            'question_images' => static::getImagePath($data['content']),
+            'question_images' => static::getImagePath(
+                $record->getTranslation('content', 'ko_KR')
+            ),
             'created_by' => [
                 'uid' => auth()->id(),
                 'name' => auth()->user()->name
             ]
         ]);
 
-        foreach ($data['choices'] as $choice) {
+        foreach ($choices as $choice) {
             if ($choice['is_image']) {
                 $record->choices()->save(new Choice([
                     'type' => 'image',
@@ -67,34 +72,11 @@ class CreateQuestion extends CreateRecord
                 $record->choices()->save(new Choice([
                     'type' => 'text',
                     'text' => [
-                        $local => $choice['text'],
+                        'ko_KR' => $choice['text'],
                     ],
                     'is_correct' => $choice['is_correct'],
                 ]));
             }
-        }
-
-        if (array_key_exists('assignment_id', $this->data)) {
-            if (Assignment::where('_id', $this->data['assignment_id'])->first()) {
-                $record->assignments()->attach($this->data['assignment_id']);
-                Notification::make('success_assigned')
-                    ->success()
-                    ->title('Successfully assigned question')
-                    ->send();
-            } else {
-                Notification::make('fail_assigned')
-                    ->warning()
-                    ->title('Failed to assign question')
-                    ->body('Assignment ID not found')
-                    ->send();
-            }
-        }
-    }
-
-    protected function afterFill()
-    {
-        if (key_exists('assign_to', $_GET) && $_GET['assign_to']) {
-            $this->data['assignment_id'] = $_GET['assign_to'];
         }
     }
 }

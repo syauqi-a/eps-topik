@@ -12,8 +12,10 @@ use Filament\Support\Colors\Color;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\QuestionResource;
+use App\Filament\Teacher\Resources\QuestionResource\Pages\CreateQuestion;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\RelationManagers\Concerns\Translatable;
+use Illuminate\Support\HtmlString;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionsRelationManager extends RelationManager
@@ -36,7 +38,13 @@ class QuestionsRelationManager extends RelationManager
                 Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
                     ->tooltip('Add a new assignment')
-                    ->closeModalByClickingAway(false),
+                    ->closeModalByClickingAway(false)
+                    ->after(function (Question $record) {
+                        CreateQuestion::handlingAfterCreation(
+                            $record,
+                            $this->mountedTableActionsData[0]['choices']
+                        );
+                    }),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
@@ -91,6 +99,9 @@ class QuestionsRelationManager extends RelationManager
                 Tables\Actions\DetachBulkAction::make()
                     ->label('Remove')
                     ->modalHeading('Remove selected questions from list')
+                    ->modalDescription(new HtmlString(
+                        'Are you sure you would like to do this?<br/><br/><b>NB</b>: <i>Questions will <b>only be removed</b> from the assignment list but not deleted.</i>'
+                    ))
                     ->action(function (
                         Tables\Actions\DetachBulkAction $action,
                         Collection $records,
