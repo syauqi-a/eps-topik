@@ -14,9 +14,11 @@ use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
 use App\Tables\Columns\NumberColumn;
 use Filament\Resources\Concerns\Translatable;
+use Filament\Tables\Enums\FiltersLayout;
 use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\HtmlString;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
+use MongoDB\Laravel\Eloquent\Builder;
 
 class QuestionResource extends Resource
 {
@@ -165,7 +167,13 @@ class QuestionResource extends Resource
                     ->color(fn ($state) => $state ? 'success' : 'danger'),
             ])
             ->filters([
-                //
-            ]);
+                Tables\Filters\TernaryFilter::make('has_translation')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->queries(
+                        true: fn (Builder $query) => $query->where('content', 'like', '%"id":"<p>_%<\/p>%'),
+                        false:fn (Builder $query) => $query->whereNot('content', 'like', '%"id":"<p>_%<\/p>%'),
+                    ),
+            ], layout: FiltersLayout::AboveContentCollapsible);
     }
 }
