@@ -36,9 +36,19 @@ class QuestionsRelationManager extends RelationManager
             ->recordTitleAttribute('content')
             ->headerActions([
                 Tables\Actions\LocaleSwitcher::make(),
+                Tables\Actions\CreateAction::make()
+                    ->tooltip('Add a new assignment')
+                    ->closeModalByClickingAway(false)
+                    ->after(function (Question $record) {
+                        CreateQuestion::handlingAfterCreation(
+                            $record,
+                            $this->mountedTableActionsData[0]['choices']
+                        );
+                    }),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
+                    ->tooltip('Add questions that have been created')
                     ->modalHeading('Add Questions')
                     ->recordSelect(function () {
                         return Forms\Components\Select::make('_id')
@@ -63,22 +73,6 @@ class QuestionsRelationManager extends RelationManager
                                         ];
                                     });
                             })
-                            ->createOptionForm(
-                                fn ($form) => QuestionResource::getQuestionForm($form)
-                            )
-                            ->createOptionUsing(function (array $data) {
-                                $record = Question::create([
-                                    'content' => [
-                                        'ko_KR' => $data['content'],
-                                    ],
-                                    'question_type' => $data['question_type'],
-                                    'tags' => $data['tags'],
-                                ]);
-                                CreateQuestion::handlingAfterCreation($record, $data['choices']);
-                            })
-                            ->createOptionAction(fn (
-                                Forms\Components\Actions\Action $action
-                            ) => $action->closeModalByClickingAway(false))
                             ->multiple()
                             ->preload()
                             ->searchable()
