@@ -3,16 +3,25 @@
 namespace App\Observers;
 
 use App\Models\Choice;
+use App\Models\Question;
 use Illuminate\Support\Facades\Storage;
 
 class ChoiceObserver
 {
+    protected function update_create_correct_answer(Question $question): void
+    {
+        $question->update([
+            'count_correct_answers' => $question->choices()
+                ->where('is_correct', true)->count()
+        ]);
+    }
+
     /**
      * Handle the Choice "created" event.
      */
     public function created(Choice $choice): void
     {
-        //
+        $this->update_create_correct_answer($choice->question()->first());
     }
 
     /**
@@ -20,7 +29,7 @@ class ChoiceObserver
      */
     public function updated(Choice $choice): void
     {
-        //
+        $this->update_create_correct_answer($choice->question()->first());
     }
 
     /**
@@ -31,6 +40,7 @@ class ChoiceObserver
         if ($choice->image) {
             Storage::disk('public')->delete($choice->image);
         }
+        $this->update_create_correct_answer($choice->question()->first());
     }
 
     /**
