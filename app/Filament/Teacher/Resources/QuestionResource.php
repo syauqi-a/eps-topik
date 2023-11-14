@@ -86,7 +86,7 @@ class QuestionResource extends Resource
                         // ->disk('s3')
                         ->directory('images/questions')
                         ->requiredIf('question_type', '읽기')
-                        ->rules([
+                        ->rule(
                             function () {
                                 return function (string $attribute, $value, Closure $fail) {
                                     if ($attribute != 'data.ko_KR.content') {
@@ -101,7 +101,8 @@ class QuestionResource extends Resource
                                     }
                                 };
                             },
-                        ], fn (string $operation) => $operation === 'create'),
+                            fn (string $operation) => $operation === 'create'
+                        ),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
@@ -137,7 +138,23 @@ class QuestionResource extends Resource
                         ->defaultItems(4)
                         ->helperText(new HtmlString(
                             'To add translations, please go to the <b>edit page</b> after the creation process is successful.'
-                        )),
+                        ))
+                        ->rule(function () {
+                            return function (string $attribute, $value, Closure $fail) {
+                                $count_correct = 0;
+                                foreach ($value as $choice) {
+                                    if ($choice['is_correct']) {
+                                        ++$count_correct;
+                                    }
+                                }
+
+                                if ($count_correct == 0) {
+                                    $fail('Questions must have correct choices');
+                                } elseif ($count_correct > 1) {
+                                    $fail('Questions must have only 1 correct option');
+                                }
+                            };
+                        }),
                 ])->hiddenOn('edit'),
             ]);
     }
