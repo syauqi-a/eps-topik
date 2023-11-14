@@ -35,7 +35,7 @@ class ChoiceObserver
     /**
      * Handle the Choice "deleted" event.
      */
-    public function deleted(Choice $choice)
+    public function deleted(Choice $choice): void
     {
         if ($choice->image) {
             Storage::disk('public')->delete($choice->image);
