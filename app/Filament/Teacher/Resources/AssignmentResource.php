@@ -195,6 +195,7 @@ class AssignmentResource extends Resource
                         ->questions()
                         ->count()
                     )
+                    ->default(0)
             ])
             ->filters([
                 TimezoneSelectFilter::make('timezone')
