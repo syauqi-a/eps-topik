@@ -89,7 +89,12 @@ class QuestionResource extends Resource
                         ->rule(
                             function () {
                                 return function (string $attribute, $value, Closure $fail) {
-                                    if ($attribute != 'data.ko_KR.content') {
+                                    $must_validate = [
+                                        'data.ko_KR.content',
+                                        'mountedTableActionsData.0.content',
+                                    ];
+
+                                    if (in_array($attribute, $must_validate) == false) {
                                         return;
                                     }
 
