@@ -98,7 +98,7 @@ class QuestionResource extends Resource
                                         return;
                                     }
 
-                                    if ($value == '<p></p>') {
+                                    if (empty(trim($value, '<p>\n\r\t\v\0 </p>'))) {
                                         $fail('The question content field is required.');
                                         return;
                                     }
@@ -112,7 +112,8 @@ class QuestionResource extends Resource
                                 };
                             },
                             fn (string $operation) => $operation === 'create'
-                        ),
+                        )
+                        ->dehydrateStateUsing(fn (string $state) => '<p>' . trim($state, '<p>\n\r\t\v\0 </p>') . '</p>'),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
