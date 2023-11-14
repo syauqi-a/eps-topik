@@ -93,6 +93,11 @@ class QuestionResource extends Resource
                                         return;
                                     }
 
+                                    if ($value == '<p></p>') {
+                                        $fail('The question content field is required.');
+                                        return;
+                                    }
+
                                     $found = Question::where('content', 'like', encode_string($value))
                                         ->count();
 
