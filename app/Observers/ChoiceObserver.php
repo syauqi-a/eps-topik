@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ChoiceObserver
 {
-    protected function update_create_correct_answer(Question $question): void
+    protected function update_count_correct_answer(Question $question): void
     {
         $question->update([
             'count_correct_answers' => $question->choices()
@@ -21,7 +21,7 @@ class ChoiceObserver
      */
     public function created(Choice $choice): void
     {
-        $this->update_create_correct_answer($choice->question()->first());
+        $this->update_count_correct_answer($choice->question()->first());
     }
 
     /**
@@ -29,18 +29,21 @@ class ChoiceObserver
      */
     public function updated(Choice $choice): void
     {
-        $this->update_create_correct_answer($choice->question()->first());
+        $this->update_count_correct_answer($choice->question()->first());
     }
 
     /**
      * Handle the Choice "deleted" event.
      */
-    public function deleted(Choice $choice): void
+    public function deleted(Choice $choice)
     {
         if ($choice->image) {
             Storage::disk('public')->delete($choice->image);
         }
-        $this->update_create_correct_answer($choice->question()->first());
+
+        if ($choice->question()->first()) {
+            $this->update_count_correct_answer($choice->question()->first());
+        }
     }
 
     /**
