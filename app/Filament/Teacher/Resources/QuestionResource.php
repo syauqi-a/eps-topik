@@ -20,7 +20,6 @@ use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
-use Illuminate\Validation\Rules\Unique;
 
 class QuestionResource extends Resource
 {
