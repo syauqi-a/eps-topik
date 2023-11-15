@@ -6,8 +6,18 @@ function encode_string(string $string, ?string $border = '%'): string {
     }
 
     $encoded = json_encode($string);
-    $encoded = substr_replace($encoded, $border, -1);  // replace last char
-    $encoded = substr_replace($encoded, $border, 0, 1);  // replace first char
 
-    return $encoded;
+    $pattern = '/^<p>|<\/p>$/';
+    $replaced = preg_replace($pattern, '', $encoded);
+
+    return $replaced;
+}
+
+function custom_trim(string $string, array $wrapper_tags = ['p']): string {
+    foreach ($wrapper_tags as $tag) {
+        $pattern = "/<{$tag}><\/{$tag}>/";
+        $trimed = preg_replace($pattern, '', trim($string));
+    }
+
+    return $trimed;
 }
