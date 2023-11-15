@@ -211,12 +211,14 @@ class QuestionResource extends Resource
                 Tables\Columns\IconColumn::make('images')
                     ->getStateUsing(fn (Question $record) => $record->question_images != null)
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
-                    ->color(fn ($state) => $state ? 'success' : 'danger'),
+                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->toggleable(true, true),
                 Tables\Columns\IconColumn::make('question_audio')
                     ->label('Audio')
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
                     ->default(false)
-                    ->color(fn ($state) => $state ? 'success' : 'danger'),
+                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->toggleable(true, true),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('has_translation')
