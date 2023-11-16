@@ -38,7 +38,7 @@ class QuestionsRelationManager extends RelationManager
                 Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
                     ->modalHeading(fn () => 'Create question #' .
-                        count($this->getOwnerRecord()->question_ids) + 1)
+                        count($this->getOwnerRecord()->question_ids ?? []) + 1)
                     ->tooltip('Add a new assignment')
                     ->closeModalByClickingAway(false)
                     ->after(function (Question $record) {
