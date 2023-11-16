@@ -183,7 +183,7 @@ class QuestionResource extends Resource
                         (new Converter())->convert($state)->getContent()
                     ))
                     ->searchable(query: function (Builder $query, string $search, $livewire) {
-                        $encoded = encode_string($search);
+                        $encoded = encode_string($search, '/^"|"$/');
 
                         return $query->where('content', 'like', $encoded);
                     }),
