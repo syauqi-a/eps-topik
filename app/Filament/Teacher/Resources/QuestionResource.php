@@ -114,7 +114,7 @@ class QuestionResource extends Resource
                             },
                             fn (string $operation) => $operation === 'create'
                         )
-                        ->dehydrateStateUsing(fn (string $state) => '<p>' . custom_trim($state) . '</p>'),
+                        ->dehydrateStateUsing(fn (string $state) => custom_trim($state)),
                     Forms\Components\Select::make('question_type')
                         ->options(Question::questionTypes())
                         ->required()
