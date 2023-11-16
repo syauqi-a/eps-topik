@@ -1,16 +1,21 @@
 <?php
 
-function encode_string(string $string, string $border = '%'): string {
+function encode_string(string $string, ?string $wrapp_pattern = null,  string $wrapp_replacement = '%'): string {
     if ($string == '') {
         return $string;
     }
 
     $encoded = json_encode($string);
 
-    $pattern = '/^<p>|<\/p>$/';
-    $replaced = preg_replace($pattern, '', $encoded);
+    $wrapp_pattern ??= '/^<p>|<\/p>$/';
 
-    return $border . $replaced . $border;
+    if (preg_match('/^\/\^[\s\S]+\|[\s\S]+\$\/[gimsuy]*$/', $wrapp_pattern) == false) {
+        throw new Exception('Wrapper pattern (' . $wrapp_pattern . ') is invalid regex pattern!');
+    }
+
+    $replaced = preg_replace($wrapp_pattern, $wrapp_replacement, $encoded);
+
+    return $replaced;
 }
 
 function custom_trim(string $string, array $wrapper_tags = ['p']): string {
