@@ -34,19 +34,22 @@ class CreatePermission extends CreateRecord
         $added_name = array();
 
         $record = new ($this->getModel())($data);
+
         if ($data['name']) {
             $record->save();
             $added_amount += 1;
             $added_name[] = $data['name'];
         }
 
-        if ($data['model_name']) {
-            foreach ($data['permissions'] as $permission) {
-                $name = Str::lower($permission . " " . (Str::plural($data['model_name'])));
-                if (count(Permission::where('name', $name)->get()) == 0) {
-                    Permission::create(['name' => $name]);
-                    $added_amount += 1;
-                    $added_name[] = $name;
+        if ($data['model_names']) {
+            foreach ($data['model_names'] as $model) {
+                foreach ($data['permissions'] as $permission) {
+                    $name = Str::lower($permission . " " . (Str::plural($model)));
+                    if (count(Permission::where('name', $name)->get()) == 0) {
+                        Permission::create(['name' => $name]);
+                        $added_amount += 1;
+                        $added_name[] = $name;
+                    }
                 }
             }
         }

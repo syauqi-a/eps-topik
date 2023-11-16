@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use MongoDB\Laravel\Eloquent\Builder;
 use App\Filament\Resources\PermissionResource\Pages;
+use App\Tables\Columns\NumberColumn;
 
 class PermissionResource extends Resource
 {
@@ -32,7 +33,7 @@ class PermissionResource extends Resource
                         })
                         ->minLength(2)
                         ->maxLength(255)
-                        ->requiredWithout('model_name')
+                        ->requiredWithout('model_names')
                         ->unique(ignoreRecord: true)
                         ->helperText(
                             'To standardize naming, the name will automatically be changed to Lowercase.'
@@ -44,7 +45,8 @@ class PermissionResource extends Resource
                     )
                     ->icon('heroicon-o-rectangle-group')
                     ->schema([
-                        Forms\Components\Select::make('model_name')
+                        Forms\Components\Select::make('model_names')
+                            ->multiple()
                             ->options(function () {
                                 $path = app_path('Models') . '/*.php';
                                 $models = array();
@@ -65,9 +67,9 @@ class PermissionResource extends Resource
                                 'delete' => 'Delete',
                             ])
                             ->bulkToggleable()
-                            ->hidden(fn (Get $get) => $get('model_name') == null)
-                            ->requiredWith('model_name')
-                            ->columns(['sm' => 2]),
+                            ->hidden(fn (Get $get) => $get('model_names') == null)
+                            ->requiredWith('model_names')
+                            ->columns(['default' => 2]),
                     ])
                     ->collapsed()
                     ->hidden(
@@ -80,8 +82,7 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('no')
-                    ->rowIndex(),
+                NumberColumn::make(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')

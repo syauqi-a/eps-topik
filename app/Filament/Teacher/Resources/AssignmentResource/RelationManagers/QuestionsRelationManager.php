@@ -12,11 +12,16 @@ use Filament\Support\Colors\Color;
 use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\QuestionResource;
+use App\Filament\Teacher\Resources\QuestionResource\Pages\CreateQuestion;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\RelationManagers\Concerns\Translatable;
+use Illuminate\Support\HtmlString;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 
 class QuestionsRelationManager extends RelationManager
 {
+    use Translatable;
+
     protected static string $relationship = 'questions';
 
     public function form(Form $form): Form
@@ -30,8 +35,18 @@ class QuestionsRelationManager extends RelationManager
             ->query(fn () => $this->getOwnerRecord()->questions())
             ->recordTitleAttribute('content')
             ->headerActions([
+                Tables\Actions\LocaleSwitcher::make(),
                 Tables\Actions\CreateAction::make()
-                    ->tooltip('Add a new assignment'),
+                    ->modalHeading(fn () => 'Create question #' .
+                        count($this->getOwnerRecord()->question_ids ?? []) + 1)
+                    ->tooltip('Add a new assignment')
+                    ->closeModalByClickingAway(false)
+                    ->after(function (Question $record) {
+                        CreateQuestion::handlingAfterCreation(
+                            $record,
+                            $this->mountedTableActionsData[0]['choices']
+                        );
+                    }),
                 Tables\Actions\AttachAction::make()
                     ->color(Color::Emerald)
                     ->label('Add Questions')
@@ -86,6 +101,9 @@ class QuestionsRelationManager extends RelationManager
                 Tables\Actions\DetachBulkAction::make()
                     ->label('Remove')
                     ->modalHeading('Remove selected questions from list')
+                    ->modalDescription(new HtmlString(
+                        'Are you sure you would like to do this?<br/><br/><b>NB</b>: <i>Questions will <b>only be removed</b> from the assignment list but not deleted.</i>'
+                    ))
                     ->action(function (
                         Tables\Actions\DetachBulkAction $action,
                         Collection $records,
@@ -103,7 +121,13 @@ class QuestionsRelationManager extends RelationManager
 
     public function isReadOnly(): bool
     {
-        $courses = $this->getOwnerRecord()->courses()->pluck('_id')->toArray();;
+        $record = $this->getOwnerRecord();
+
+        if ($record->created_by['uid'] === auth()->id()) {
+            return false;
+        }
+
+        $courses = $record->courses()->pluck('_id')->toArray();;
         $my_courses = auth()->user()->teacher_has_courses()->pluck('_id')->toArray();;
 
         if (empty(array_intersect($courses, $my_courses))) {
