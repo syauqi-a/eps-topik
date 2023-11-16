@@ -9,6 +9,7 @@ use Filament\Forms\Get;
 use App\Models\Question;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use App\Tables\Columns\NumberColumn;
@@ -20,6 +21,7 @@ use App\Filament\Teacher\Resources\QuestionResource\Pages;
 use League\CommonMark\GithubFlavoredMarkdownConverter as Converter;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers;
 use App\Filament\Teacher\Resources\QuestionResource\RelationManagers\ChoicesRelationManager;
+use Filament\Support\Colors\Color;
 
 class QuestionResource extends Resource
 {
@@ -218,6 +220,22 @@ class QuestionResource extends Resource
                     ->default(false)
                     ->color(fn ($state) => $state ? 'success' : 'danger')
                     ->toggleable(true, true),
+                Tables\Columns\TextColumn::make('choices')
+                    ->formatStateUsing(function (string $state, $livewire) {
+                        $choices = json_decode('['.$state.']', true);
+                        $answers = array();
+                        $locale = $livewire->activeLocale;
+                        foreach ($choices as $choice) {
+                            if ($choice['is_correct'] && key_exists($locale, $choice['text'])) {
+                                $answers[] = $choice['text'][$locale];
+                            }
+                        }
+                        return Str::limit(join(',', $answers), 15);
+                    })
+                    ->label('Answers')
+                    ->badge()
+                    ->color(Color::Green)
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('has_translation')
