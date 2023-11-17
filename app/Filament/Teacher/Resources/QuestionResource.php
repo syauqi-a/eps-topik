@@ -2,6 +2,7 @@
 
 namespace App\Filament\Teacher\Resources;
 
+use App\Filament\Teacher\Resources\AssignmentResource\RelationManagers\QuestionsRelationManager;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
@@ -175,13 +176,24 @@ class QuestionResource extends Resource
     {
         return $table
             ->columns([
-                NumberColumn::make(),
+                NumberColumn::make()
+                    ->visibleOn(QuestionResource::class),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('No')
+                    ->visibleOn(QuestionsRelationManager::class)
+                    ->formatStateUsing(function (QuestionsRelationManager $livewire, string $state) {
+                        $ids = $livewire->getOwnerRecord()->question_ids;
+                        return array_search($state, $ids) + 1;
+                    }),
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
-                    ->formatStateUsing(fn ($state) => strip_tags(
-                        (new Converter())->convert($state)->getContent()
-                    ))
+                    ->formatStateUsing(function ($state) {
+                        $replaced = imgTagsToEmoji($state);
+                        return strip_tags(
+                            (new Converter())->convert($replaced)->getContent()
+                        );
+                    })
                     ->searchable(query: function (Builder $query, string $search, $livewire) {
                         $encoded = encode_string($search, '/^"|"$/');
 
@@ -210,7 +222,10 @@ class QuestionResource extends Resource
                     })
                     ->badge(),
                 Tables\Columns\IconColumn::make('images')
-                    ->getStateUsing(fn (Question $record) => $record->question_images != null)
+                    ->getStateUsing(function (Question $record) {
+                        $pattern = '/<img([\w\W]+?)[\/]?>/';
+                        return preg_match($pattern, $record->content);
+                    })
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
                     ->color(fn ($state) => $state ? 'success' : 'danger')
                     ->toggleable(true, true),
@@ -226,8 +241,18 @@ class QuestionResource extends Resource
                         $answers = array();
                         $locale = $livewire->activeLocale;
                         foreach ($choices as $choice) {
-                            if ($choice['is_correct'] && key_exists($locale, $choice['text'])) {
+                            if ($choice['is_correct'] == false) {
+                                continue;
+                            }
+
+                            if ($choice['type'] == 'text' &&
+                                key_exists('text', $choice) &&
+                                key_exists($locale, $choice['text'])
+                            ) {
                                 $answers[] = $choice['text'][$locale];
+                            } elseif ($choice['type'] == 'image' &&
+                                key_exists('image', $choice)) {
+                                $answers[] = '🖼image';
                             }
                         }
                         return Str::limit(join(',', $answers), 15);
@@ -238,6 +263,22 @@ class QuestionResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('question_type')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->options(Question::QuestionTypes()),
+                Tables\Filters\SelectFilter::make('tags')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->options(function () {
+                        $options = array();
+                        foreach (array_merge(...Question::pluck('tags')) as $tag) {
+                            if (in_array($tag, $options) == false) {
+                                $options[$tag] = $tag;
+                            }
+                        }
+                        return $options;
+                    }),
                 Tables\Filters\TernaryFilter::make('has_translation')
                     ->placeholder('All question')
                     ->native(false)
@@ -275,6 +316,7 @@ class QuestionResource extends Resource
                     ->button()
                     ->label('Filters'),
             )
+            // ->defaultSort('id')
             ->defaultPaginationPageOption(25);
     }
 }

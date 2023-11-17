@@ -87,10 +87,65 @@ class QuestionsRelationManager extends RelationManager
                     })
                     ->attachAnother(false)
                     ->closeModalByClickingAway(false),
+                Tables\Actions\Action::make('reorder_questions')
+                    ->icon('heroicon-s-arrows-up-down')
+                    ->iconButton()
+                    ->tooltip('Reorder questions')
+                    ->hidden(fn (Table $table) => $table->getRecords()->total() == 0)
+                    ->fillForm(function (QuestionsRelationManager $livewire) {
+                        $question_ids = $livewire->getOwnerRecord()->question_ids;
+                        $data = array(
+                            'questions' => array(),
+                        );
+
+                        foreach ($question_ids as $id) {
+                            $data['questions'][] = Question::where('_id', $id)
+                                ->first();
+                        }
+
+                        return $data;
+                    })
+                    ->form([
+                        Forms\Components\Repeater::make('questions')
+                            ->hiddenLabel()
+                            ->schema([
+                                Forms\Components\Placeholder::make('content')
+                                    ->hiddenLabel()
+                                    ->content(fn ($state) => new HtmlString(
+                                        '<b>Korean</b>:<br/>' . $state['ko_KR'] .
+                                        (array_key_exists('id', $state) ? '<br/><b>Indonesian</b>:<br/>' . $state['id'] : '')
+                                    )),
+                            ])
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderableWithButtons()
+                            ->itemLabel(function (array $state) {
+                                $content = $state['content'];
+                                return $content
+                                    ? Str::limit(strip_tags(
+                                        imgTagsToEmoji($content['ko_KR'], ' image')
+                                    ), 75)
+                                    : null;
+                            })
+                            ->collapsed()
+                            ->expandAction(fn () => null),
+                    ])
+                    ->action(function (array $data) {
+                        $question_ids = array();
+
+                        foreach ($data['questions'] as $question) {
+                            $question_ids[] = $question['_id'];
+                        }
+
+                        $assignment = $this->getOwnerRecord();
+                        $assignment->update([
+                            'question_ids' => $question_ids,
+                        ]);
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->label('')
+                    ->iconButton()
                     ->tooltip('Edit')
                     ->url(fn (Question $record) => route(
                         'filament.teacher.resources.questions.edit',
