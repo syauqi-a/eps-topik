@@ -26,3 +26,9 @@ function custom_trim(string $string, array $wrapper_tags = ['p']): string {
 
     return $string;
 }
+
+function imgTagsToEmoji(string $content, ?string $suffix = null): string {
+    $pattern = '/<img([\w\W]+?)[\/]?>/';
+    $suffix ??= '';
+    return preg_replace($pattern, '🖼' . $suffix, $content);
+}

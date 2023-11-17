@@ -189,8 +189,7 @@ class QuestionResource extends Resource
                     ->limit(50)
                     ->wrap()
                     ->formatStateUsing(function ($state) {
-                        $pattern = '/<img([\w\W]+?)[\/]?>/';
-                        $replaced = preg_replace($pattern, '🖼', $state);
+                        $replaced = imgTagsToEmoji($state);
                         return strip_tags(
                             (new Converter())->convert($replaced)->getContent()
                         );
