@@ -29,7 +29,10 @@ class ViewCourse extends ViewRecord
                     Infolists\Components\TextEntry::make('description'),
                     Infolists\Components\TextEntry::make('is_private')
                         ->label('Course accessibility')
-                        ->formatStateUsing(fn ($state) => $state ? 'Private' : 'Public'),
+                        ->formatStateUsing(fn ($state) => $state ? 'Private' : 'Public')
+                        ->badge()
+                        ->icon(fn ($state) => $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open')
+                        ->color(fn ($state) => $state ? 'danger' : 'success'),
                     Infolists\Components\TextEntry::make('created_by.name')
                         ->label('Course owner'),
                     Infolists\Components\TextEntry::make('teachers')

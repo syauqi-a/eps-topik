@@ -53,8 +53,10 @@ class CourseResource extends Resource
                         ->columnSpanFull(),
                     Forms\Components\Toggle::make('is_private')
                         ->label('Private course')
-                        ->onIcon('heroicon-m-eye-slash')
-                        ->offIcon('heroicon-m-eye')
+                        ->onIcon('heroicon-s-lock-closed')
+                        ->onColor('danger')
+                        ->offIcon('heroicon-s-lock-open')
+                        ->offColor('success')
                         ->inline(false)
                         ->live(true),
                     Forms\Components\TextInput::make('course_key')
@@ -139,7 +141,11 @@ class CourseResource extends Resource
                         if (empty($record->course_key)) {
                             return 'Private course need to set a course key, otherwise student can\'t join by link.';
                         }
-                    }),
+                    })
+                    ->onIcon('heroicon-s-lock-closed')
+                    ->onColor('danger')
+                    ->offIcon('heroicon-s-lock-open')
+                    ->offColor('success'),
                 Tables\Columns\TextColumn::make('assignments')
                     ->toggleable()
                     ->toggledHiddenByDefault()
