@@ -26,6 +26,7 @@ class Assignment extends Model
         'is_unlimited',
         'deadlines',
         'timezone',
+        'question_ids',
     ];
 
     /**
