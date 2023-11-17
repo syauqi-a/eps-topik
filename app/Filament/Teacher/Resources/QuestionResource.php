@@ -255,6 +255,22 @@ class QuestionResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('question_type')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->options(Question::QuestionTypes()),
+                Tables\Filters\SelectFilter::make('tags')
+                    ->placeholder('All question')
+                    ->native(false)
+                    ->options(function () {
+                        $options = array();
+                        foreach (array_merge(...Question::pluck('tags')) as $tag) {
+                            if (in_array($tag, $options) == false) {
+                                $options[$tag] = $tag;
+                            }
+                        }
+                        return $options;
+                    }),
                 Tables\Filters\TernaryFilter::make('has_translation')
                     ->placeholder('All question')
                     ->native(false)
