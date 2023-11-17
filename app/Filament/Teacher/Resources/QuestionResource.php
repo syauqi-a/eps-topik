@@ -179,9 +179,13 @@ class QuestionResource extends Resource
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
-                    ->formatStateUsing(fn ($state) => strip_tags(
-                        (new Converter())->convert($state)->getContent()
-                    ))
+                    ->formatStateUsing(function ($state) {
+                        $pattern = '/<img([\w\W]+?)[\/]?>/';
+                        $replaced = preg_replace($pattern, '🖼', $state);
+                        return strip_tags(
+                            (new Converter())->convert($replaced)->getContent()
+                        );
+                    })
                     ->searchable(query: function (Builder $query, string $search, $livewire) {
                         $encoded = encode_string($search, '/^"|"$/');
 
@@ -210,7 +214,10 @@ class QuestionResource extends Resource
                     })
                     ->badge(),
                 Tables\Columns\IconColumn::make('images')
-                    ->getStateUsing(fn (Question $record) => $record->question_images != null)
+                    ->getStateUsing(function (Question $record) {
+                        $pattern = '/<img([\w\W]+?)[\/]?>/';
+                        return preg_match($pattern, $record->content);
+                    })
                     ->icon(fn ($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle')
                     ->color(fn ($state) => $state ? 'success' : 'danger')
                     ->toggleable(true, true),
