@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Teacher\Resources\AssignmentResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use App\Filament\Teacher\Resources\AssignmentResource\Pages\CreateAssignment;
+use Filament\Resources\Pages\EditRecord;
 
 class AssignmentsRelationManager extends RelationManager
 {
@@ -72,13 +73,21 @@ class AssignmentsRelationManager extends RelationManager
                         'filament.teacher.resources.assignments.edit',
                         $record
                     ))
-                    ->visible(fn (): bool => str_contains(strtolower($this->getPageClass()), 'edit')),
+                    ->visible(EditRecord::class),
                 Tables\Actions\ViewAction::make()
                     ->label('')
                     ->tooltip('View')
                     ->url(fn (Assignment $record) => route(
                         'filament.app.resources.assignments.view',
                         $record
+                    )),
+                Tables\Actions\Action::make('take_exam')
+                    ->icon('heroicon-s-rocket-launch')
+                    ->iconButton()
+                    ->tooltip('Take exam')
+                    ->url(fn (Assignment $record) => route(
+                        'filament.app.resources.courses.exam',
+                        [$this->getOwnerRecord(), $record]
                     )),
             ])
             ->bulkActions([

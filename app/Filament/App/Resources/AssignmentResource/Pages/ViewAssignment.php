@@ -9,6 +9,7 @@ use Filament\Infolists\Infolist;
 use MongoDB\Laravel\Eloquent\Model;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\AssignmentResource;
+use App\Models\Course;
 use Filament\Support\Colors\Color;
 
 class ViewAssignment extends ViewRecord
@@ -57,16 +58,24 @@ class ViewAssignment extends ViewRecord
                         ->schema([
                             Infolists\Components\TextEntry::make('name')
                                 ->hiddenLabel()
-                                ->suffixAction(
+                                ->suffixActions([
                                     Infolists\Components\Actions\Action::make('view')
-                                        ->label('View course')
+                                        ->tooltip('View course')
                                         ->icon('heroicon-o-document-magnifying-glass')
                                         ->iconSize('lg')
-                                        ->url(fn (Model $record) => route(
+                                        ->url(fn (Course $record) => route(
                                             'filament.app.resources.courses.view',
-                                            $record->getAttribute('_id')
-                                        ))
-                                )
+                                            $record
+                                        )),
+                                    Infolists\Components\Actions\Action::make('take_exam')
+                                        ->tooltip('Take exam')
+                                        ->icon('heroicon-s-rocket-launch')
+                                        ->iconSize('lg')
+                                        ->url(fn (Course $record) => route(
+                                            'filament.app.resources.courses.exam',
+                                            [$record, request('record')]
+                                        )),
+                                ])
                         ])
                         ->grid(3)
                         ->hidden(fn ($state) => $state === null)

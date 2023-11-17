@@ -116,6 +116,7 @@ class CourseResource extends Resource
         return [
             'index' => Pages\ManageCourses::route('/'),
             'view' => Pages\ViewCourse::route('/{record}'),
+            'exam' => Pages\TakeExam::route('/{record}/{assignment}/exam'),
         ];
     }
 
