@@ -226,8 +226,18 @@ class QuestionResource extends Resource
                         $answers = array();
                         $locale = $livewire->activeLocale;
                         foreach ($choices as $choice) {
-                            if ($choice['is_correct'] && key_exists($locale, $choice['text'])) {
+                            if ($choice['is_correct'] == false) {
+                                continue;
+                            }
+
+                            if ($choice['type'] == 'text' &&
+                                key_exists('text', $choice) &&
+                                key_exists($locale, $choice['text'])
+                            ) {
                                 $answers[] = $choice['text'][$locale];
+                            } elseif ($choice['type'] == 'image' &&
+                                key_exists('image', $choice)) {
+                                $answers[] = '🖼image';
                             }
                         }
                         return Str::limit(join(',', $answers), 15);
