@@ -2,6 +2,7 @@
 
 namespace App\Filament\Teacher\Resources;
 
+use App\Filament\Teacher\Resources\AssignmentResource\RelationManagers\QuestionsRelationManager;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
@@ -175,7 +176,15 @@ class QuestionResource extends Resource
     {
         return $table
             ->columns([
-                NumberColumn::make(),
+                NumberColumn::make()
+                    ->visibleOn(QuestionResource::class),
+                Tables\Columns\TextColumn::make('id')
+                    ->label('No')
+                    ->visibleOn(QuestionsRelationManager::class)
+                    ->formatStateUsing(function (QuestionsRelationManager $livewire, string $state) {
+                        $ids = $livewire->getOwnerRecord()->question_ids;
+                        return array_search($state, $ids) + 1;
+                    }),
                 Tables\Columns\TextColumn::make('content')
                     ->limit(50)
                     ->wrap()
@@ -308,6 +317,7 @@ class QuestionResource extends Resource
                     ->button()
                     ->label('Filters'),
             )
+            // ->defaultSort('id')
             ->defaultPaginationPageOption(25);
     }
 }
