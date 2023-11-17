@@ -90,6 +90,7 @@ class ViewAssignment extends ViewRecord
             Actions\Action::make('take_exam')
                 ->color(Color::Rose)
                 ->icon('heroicon-o-rocket-launch')
+                ->tooltip('Take individual exam')
                 ->hidden(function (Model $record) {
                     $uid = auth()->id();
                     $students = $record->getAttribute('student_ids') ?? [];
@@ -112,6 +113,7 @@ class ViewAssignment extends ViewRecord
             Actions\Action::make('leaderboard')
                 ->color(Color::Yellow)
                 ->icon('heroicon-o-trophy')
+                ->tooltip('View leaderboard')
                 ->hidden(function (Model $record) {
                     $uid = auth()->id();
                     $students = $record->getAttribute('student_ids') ?? [];
