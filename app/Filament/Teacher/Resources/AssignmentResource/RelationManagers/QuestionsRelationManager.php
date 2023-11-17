@@ -87,11 +87,10 @@ class QuestionsRelationManager extends RelationManager
                     })
                     ->attachAnother(false)
                     ->closeModalByClickingAway(false),
-                Tables\Actions\Action::make('reorder')
+                Tables\Actions\Action::make('reorder_questions')
                     ->icon('heroicon-s-arrows-up-down')
                     ->iconButton()
-                    ->label('Reorder Question')
-                    ->tooltip('Reorder Question')
+                    ->tooltip('Reorder questions')
                     ->hidden(fn (Table $table) => $table->getRecords()->total() == 0)
                     ->fillForm(function (QuestionsRelationManager $livewire) {
                         $question_ids = $livewire->getOwnerRecord()->question_ids;
